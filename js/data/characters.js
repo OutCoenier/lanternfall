@@ -18,12 +18,12 @@ const CHARACTERS = {
     portrait: lampwrightSVG,
   },
   moonblade: {
-    name: 'The Moonblade', short: 'Moonblade', icon: '🌙', color: '#9fc3ff', hp: 68, gold: 99, relic: 'moonCharm',
+    name: 'The Moonblade', short: 'Moonblade', icon: '🌙', color: '#9fc3ff', hp: 70, gold: 99, relic: 'moonCharm',
     deck: ['moonCut', 'moonCut', 'moonCut', 'moonCut', 'moonCut', 'sidestep', 'sidestep', 'sidestep', 'sidestep', 'crescentCut'],
     tagline: 'The last duelist of the Lunar Order.',
     bio: 'The Lunar Order guarded the night when it was still kind. Now only one of them is left, carrying a blade forged from a fallen piece of the moon. Quick, quiet, and very hard to hit.',
     mechanics: [
-      ['🌙', 'Moon Shards', 'Free little blades that pile into your hand.'],
+      ['🌙', 'Moon Shards', 'Free 4-damage blades that pile into your hand.'],
       ['🩸', 'Bleed', 'Bleeding enemies lose extra HP every time they are hit.'],
       ['👤', 'Evade', 'Slip away from an attack completely.'],
     ],

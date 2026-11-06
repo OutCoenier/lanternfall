@@ -18,8 +18,8 @@ const KEYWORDS = {
   Innate: 'Starts each combat in your hand.',
   Bleed: 'Whenever it is hit by an Attack, loses extra HP equal to its Bleed. Decreases by 1 at the end of its turn.',
   Evade: 'Completely avoids the next Attack hit. Lasts until used.',
-  'Moon Shards': 'A 0-cost Attack: deal 3 damage. Exhaust.',
-  'Moon Shard': 'A 0-cost Attack: deal 3 damage. Exhaust.',
+  'Moon Shards': 'A 0-cost Attack: deal 4 damage. Exhaust.',
+  'Moon Shard': 'A 0-cost Attack: deal 4 damage. Exhaust.',
 };
 const KW_RE = new RegExp('\\b(' + Object.keys(KEYWORDS).join('|') + ')\\b', 'g');
 

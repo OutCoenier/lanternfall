@@ -15,8 +15,8 @@ const RELICS = {
     onCombatStart(c) { c.addCard('moonShard', 'hand', 2); } },
 
   satchel: { name: "Brewer's Satchel", icon: '👜', rarity: 'starter', char: 'alchemist',
-    desc: 'At the start of each combat, brew a random Tonic (if you have an empty slot).',
-    onCombatStart(c) { c.brew(1); } },
+    desc: 'At the start of each elite and boss combat, brew a random Tonic (if you have an empty slot).',
+    onCombatStart(c) { if (c.kind !== 'fight') c.brew(1); } },
 
   // ---- Common ----
   compass: { name: 'Rusty Compass', icon: '🧭', rarity: 'common', unlock: 2, desc: 'Upon pickup, upgrade 2 random cards.',

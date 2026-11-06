@@ -19,7 +19,7 @@
 
     // ================= SPECIAL =================
     moonShard: { name: 'Moon Shard', type: 'attack', rarity: 'special', cost: 0, target: 'enemy', exhaust: true, icon: '🌙',
-      v: { d: 3 }, up: { d: 5 }, desc: 'Deal {d} damage.',
+      v: { d: 4 }, up: { d: 6 }, desc: 'Deal {d} damage.',
       play: (c, v, t) => c.attack(t, v.d + (c.player.statuses.honed || 0)) },
 
     // ================= COMMON =================
