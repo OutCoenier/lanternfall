@@ -125,7 +125,7 @@
 
     // ================= RARE =================
     phantomStep: { name: 'Phantom Step', type: 'power', rarity: 'rare', cost: 2, upCost: 1, icon: '👻',
-      v: {}, desc: 'At the start of your turn, gain 1 Evade.',
+      v: {}, desc: 'At the start of your turn, if you have no Evade, gain 1 Evade.',
       play: (c) => c.selfApply('phantomStep', 1) },
     bloodMoon: { name: 'Blood Moon', type: 'power', rarity: 'rare', cost: 1, upCost: 0, icon: '🌕',
       v: {}, desc: "Enemies' Bleed no longer decreases.",

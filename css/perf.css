@@ -1,0 +1,44 @@
+/* ===== Performance: keep looping animations cheap =====
+   Loaded last. Animations that change shadows, glows, filters or backgrounds force the
+   browser to repaint every frame, so they are replaced here by movement/fade-only versions
+   (which the graphics card handles almost for free) or by a static glow. */
+
+/* Title: static glow instead of an animated one */
+.game-title { animation: none; filter: drop-shadow(0 0 14px #ff9a3a99); }
+.title-lantern, .chest, .campfire, .merchant, .map-token .mt-inner, .char-portrait, .intent-inner { will-change: transform; }
+.campfire { animation: campfireCheap 1.2s ease-in-out infinite alternate; }
+@keyframes campfireCheap { from { transform: scale(1) rotate(-2deg); } to { transform: scale(1.06) rotate(2deg); } }
+
+/* Combat background fog: slide a layer instead of repainting the screen */
+.combat::after { inset: 0 -50%; background-size: 100% 100%; animation: fogSlide 40s linear infinite alternate; will-change: transform; }
+@keyframes fogSlide { from { transform: translateX(-12%); } to { transform: translateX(12%); } }
+
+/* Glows: static, with a cheap scale pulse where something needs attention */
+.energy-orb { animation: none; box-shadow: 0 0 30px #ff9a3aaa, inset 0 -6px 12px #0006; }
+.end-turn.pulse, .end-turn.ready { animation: pulseScale 1.2s ease-in-out infinite; box-shadow: 0 0 18px #ffb347aa; will-change: transform; }
+@keyframes pulseScale { 50% { transform: scale(1.06); } }
+.map-node.available { animation: nodePulseCheap 1.4s ease-in-out infinite; box-shadow: 0 0 12px 4px #ffd76a88; will-change: transform; }
+@keyframes nodePulseCheap { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
+.map-node.available:hover { animation: none; }
+
+/* Fighters: the whole sprite bobs as one layer; no moving parts inside the drawings */
+.sprite { will-change: transform; }
+.portrait-svg .pt-glow, .portrait-svg .pt-lantern, .portrait-svg .pt-blade, .portrait-svg .pt-eye,
+.portrait-svg .pt-tentacles, .portrait-svg .pt-bubble { animation: none; }
+.portrait-svg .pt-blade { filter: drop-shadow(0 0 4px #e8f0ff); }
+
+/* Rare cards: steady gold glow; the foil shine only plays when you hover the card */
+.card.r-rare { animation: none; }
+.card.r-rare .card-art::after { animation: none; mix-blend-mode: normal; opacity: 0; }
+.card.r-rare:hover .card-art::after { opacity: .7; animation: foil 1.6s ease-in-out infinite; }
+
+/* Small drifting embers are fine, but let the graphics card handle them */
+.embers i { will-change: transform, opacity; }
+
+/* Blurring everything behind menus is costly; a darker backdrop looks nearly the same */
+#overlay { backdrop-filter: none; background: #050408cc; }
+
+/* Smooth hand: cards ease in and out of hover and glide when the fan changes shape */
+.card.in-hand { transition: transform .2s cubic-bezier(.2, .8, .3, 1), box-shadow .2s, opacity .15s; }
+.hand:not(.holding) .card.in-hand:hover { transition: transform .14s ease-out, box-shadow .14s; }
+.card.in-hand.dragging { transition: none !important; }

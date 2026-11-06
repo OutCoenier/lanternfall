@@ -772,6 +772,13 @@ class Combat {
     const n = this.hand.length;
     const overlap = n <= 5 ? -14 : -14 - (n - 5) * 11;
     const keep = new Set(this.hand);
+    // When cards are added or removed, the others slide (not jump) to their new places.
+    // Positions are remembered from the last change, so nothing has to be measured now.
+    const handSig = this.hand.map((c) => c.uid).join(',');
+    const reflow = handSig !== this._handSig;
+    this._handSig = handSig;
+    const prevLeft = new Map();
+    if (reflow) for (const node of this.cardNodes.values()) if (node._left != null && node.isConnected && !node.classList.contains('dragging')) prevLeft.set(node, node._left);
     for (const [card, node] of this.cardNodes) if (!keep.has(card)) { node.remove(); this.cardNodes.delete(card); }
     const arriving = [];
     this.hand.forEach((card, i) => {
@@ -799,6 +806,14 @@ class Combat {
       if (h.children[i] !== ce) h.insertBefore(ce, h.children[i] || null);
       if (card._new) { arriving.push({ ce, rot, ty, made: card._made }); delete card._new; delete card._made; }
     });
+    if (reflow) {
+      for (const node of this.cardNodes.values()) {
+        const now = node.offsetLeft;
+        const l0 = prevLeft.get(node);
+        if (l0 != null && Math.abs(l0 - now) > 1) node.animate([{ translate: `${l0 - now}px 0` }, { translate: '0 0' }], { duration: 260, easing: 'cubic-bezier(.2,.8,.3,1)' });
+        node._left = now;
+      }
+    }
     if (arriving.length) this.animateArrivals(arriving);
     this.updateSelectArrow();
   }

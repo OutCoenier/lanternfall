@@ -88,8 +88,8 @@ const STATUSES = {
                 onTurnStart(ctx, e, n) { delete e.statuses.shardsNext; ctx.addCard('moonShard', 'hand', n); } },
   crimsonMoon: { name: 'Crimson Moon', icon: '🔴', type: 'power', desc: (n) => `Whenever you apply Bleed, apply ${n} more.` },
   silverMirage: { name: 'Silver Mirage', icon: '🪞', type: 'power', desc: (n) => `Whenever you play a card that costs 0, gain ${n} Ward.` },
-  phantomStep: { name: 'Phantom Step', icon: '👻', type: 'power', desc: (n) => `At the start of your turn, gain ${n} Evade.`,
-                 onTurnStart(ctx, e, n) { ctx.apply(e, 'evade', n, e); } },
+  phantomStep: { name: 'Phantom Step', icon: '👻', type: 'power', desc: (n) => `At the start of your turn, if you have no Evade, gain 1 Evade.`,
+                 onTurnStart(ctx, e, n) { if (!e.statuses.evade) ctx.apply(e, 'evade', 1, e); } },
   bloodMoon: { name: 'Blood Moon', icon: '🌕', type: 'power', desc: () => `Enemies' Bleed no longer decreases.` },
   whisperingSteel: { name: 'Whispering Steel', icon: '🎐', type: 'power', desc: (n) => `Whenever you play a card, deal ${n} damage to ALL enemies.` },
 

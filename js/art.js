@@ -505,11 +505,60 @@ const ART_DEFS = '<filter id="art-sh" x="-30%" y="-30%" width="160%" height="160
   + '<radialGradient id="art-vig" cx=".5" cy=".5" r=".7"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".6"/></radialGradient>';
 
 // Returns the inner HTML for a card's picture box.
-// Each picture is drawn once, turned into an image and reused, which keeps the hand fast.
+// Each picture is painted once into a plain bitmap image (PNG) and reused. Bitmaps are
+// cheap to move, scale and copy, which keeps every card animation smooth.
+const artPng = new Map();
+function svgArtUrl(id) {
+  let url = artCache.get(id);
+  if (!url) { url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(buildArt(id)); artCache.set(id, url); }
+  return url;
+}
 function cardArtHTML(card) {
   const d = cardDef(card);
   if (d.img) return `<img class="art-img" src="${esc(d.img)}" alt="" draggable="false">`;
-  let url = artCache.get(card.id);
-  if (!url) { url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(buildArt(card.id)); artCache.set(card.id, url); }
-  return `<img class="art-img" src="${url}" alt="" draggable="false" decoding="sync">`;
+  const url = artPng.get(card.id) || svgArtUrl(card.id);
+  if (!artPng.has(card.id)) rasterizeArt(card.id);
+  return `<img class="art-img" src="${url}" alt="" draggable="false">`;
 }
+const artPending = new Set();
+function rasterizeArt(id) {
+  if (artPng.has(id) || artPending.has(id)) return;
+  artPending.add(id);
+  const img = new Image();
+  img.onload = () => {
+    try {
+      const cv = document.createElement('canvas');
+      cv.width = ART_W * 2; cv.height = ART_H * 2;
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      cv.toBlob((b) => {
+        artPending.delete(id);
+        if (!b) return;
+        const u = URL.createObjectURL(b);
+        artPng.set(id, u);
+        // swap any pictures of this card already on screen
+        const old = svgArtUrl(id);
+        document.querySelectorAll('img.art-img').forEach((n) => { if (n.getAttribute('src') === old) n.src = u; });
+      }, 'image/png');
+    } catch (e) { artPending.delete(id); artPng.set(id, svgArtUrl(id)); }
+  };
+  img.onerror = () => { artPending.delete(id); };
+  img.src = svgArtUrl(id);
+}
+// Paint all card pictures in the background, a few at a time, while the browser is idle.
+(function prepaintArt() {
+  const ids = () => Object.keys(CARDS).filter((k) => !CARDS[k].img && !artPng.has(k) && !artPending.has(k));
+  const idle = window.requestIdleCallback || ((f) => setTimeout(() => f({ timeRemaining: () => 8 }), 50));
+  // Your own hero's cards first, then the rest. One picture at a time with a pause in
+  // between, so the game never stutters while this happens.
+  const order = () => {
+    const mine = Game.run ? Game.run.char : 'lampwright';
+    return ids().sort((a, b) => (CARDS[b].char === mine) - (CARDS[a].char === mine));
+  };
+  const step = (dl) => {
+    const list = order();
+    if (!list.length) return;
+    if (dl.timeRemaining() > 6 && !Game.combat?.busy) rasterizeArt(list[0]);
+    setTimeout(() => idle(step), 120);
+  };
+  window.addEventListener('load', () => setTimeout(() => idle(step), 800));
+})();
