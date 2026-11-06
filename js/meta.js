@@ -43,6 +43,7 @@ const ACHIEVEMENTS = {
   winLamp:     { icon: '🏮', name: 'Keeper of the Light', desc: 'Win a run as the Lampwright.' },
   winMoon:     { icon: '🌙', name: 'Last of the Order', desc: 'Win a run as the Moonblade.' },
   winAlch:     { icon: '⚗️', name: 'Magnum Opus', desc: 'Win a run as the Alchemist.' },
+  winCass:     { icon: '🖤', name: 'Happily Ever After', desc: 'Win a run as Cassandra.' },
   depth5:      { icon: '🕳️', name: 'Into the Deep', desc: 'Win a run at Depth 5 or higher.' },
   depth10:     { icon: '🌑', name: 'Endless Night', desc: 'Win a run at Depth 10.' },
   bigHit:      { icon: '💥', name: 'Overkill', desc: 'Deal 40 or more damage with a single hit.' },
@@ -138,7 +139,7 @@ function finishRun(won) {
   // achievements
   if (won) {
     unlockAch('dawn');
-    unlockAch({ lampwright: 'winLamp', moonblade: 'winMoon', alchemist: 'winAlch' }[ch]);
+    unlockAch({ lampwright: 'winLamp', moonblade: 'winMoon', alchemist: 'winAlch', cassandra: 'winCass' }[ch]);
     if ((run.depth || 0) >= 5) unlockAch('depth5');
     if ((run.depth || 0) >= 10) unlockAch('depth10');
     if (run.deck.length <= 15) unlockAch('lean');

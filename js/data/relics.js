@@ -18,6 +18,10 @@ const RELICS = {
     desc: 'At the start of each elite and boss combat, brew a random Tonic (if you have an empty slot).',
     onCombatStart(c) { if (c.kind !== 'fight') c.brew(1); } },
 
+  locket: { name: 'Moonlit Locket', icon: '💍', rarity: 'starter', char: 'cassandra',
+    desc: 'At the start of each combat, Summon 8.',
+    onCombatStart(c) { c.summon(8); } },
+
   // ---- Common ----
   compass: { name: 'Rusty Compass', icon: '🧭', rarity: 'common', unlock: 2, desc: 'Upon pickup, upgrade 2 random cards.',
     onPickup() { const n = upgradeRandomCards(2); if (n.length) toast(`Upgraded ${n.join(' and ')}.`); } },
@@ -48,6 +52,8 @@ const RELICS = {
   spareOil: { name: 'Spare Oil', icon: '🫙', rarity: 'common', desc: 'Gain 1 additional Energy on the first turn of each combat.' },
 
   // ---- Uncommon ----
+  ravenQuill: { name: 'Raven Quill', icon: '🪶', rarity: 'uncommon', char: 'cassandra', desc: 'At the start of each combat, apply 3 Mark to ALL enemies.',
+    onCombatStart(c) { c.applyAll('mark', 3); } },
   mortar: { name: 'Mortar & Pestle', icon: '🥣', rarity: 'uncommon', char: 'alchemist', desc: 'At the start of each combat, apply 3 Unstable to ALL enemies.',
     onCombatStart(c) { c.applyAll('unstable', 3); } },
   mirrorShard: { name: 'Mirror Shard', icon: '🪞', rarity: 'uncommon', unlock: 2, desc: 'On your first turn of each combat, your first Attack is played twice.',
@@ -78,6 +84,8 @@ const RELICS = {
   owl: { name: 'Owl Quill', icon: '🦉', rarity: 'uncommon', desc: 'Card rewards offer 1 additional choice.' },
 
   // ---- Rare ----
+  oathRing: { name: 'Ring of the Oath', icon: '💍', rarity: 'rare', char: 'cassandra', desc: 'The Knight starts each combat with 2 Valor, and Summons 4 more.',
+    onCombatStart(c) { c.selfApply('valor', 2); c.summon(4); } },
   beaker: { name: 'Bottomless Beaker', icon: '🧫', rarity: 'rare', char: 'alchemist', desc: 'Explosions deal 10 additional damage.',
     onCombatStart(c) { c.selfApply('catalysis', 10); } },
   quill: { name: 'Gilded Quill', icon: '🪶', rarity: 'rare', unlock: 5, desc: 'Card rewards are twice as likely to contain Rare cards.' },

@@ -93,6 +93,16 @@ const STATUSES = {
   bloodMoon: { name: 'Blood Moon', icon: '🌕', type: 'power', desc: () => `Enemies' Bleed no longer decreases.` },
   whisperingSteel: { name: 'Whispering Steel', icon: '🎐', type: 'power', desc: (n) => `Whenever you play a card, deal ${n} damage to ALL enemies.` },
 
+  // ---- Cassandra and her Knight ----
+  valor: { name: 'Valor', icon: '⚔️', type: 'buff', desc: (n) => `The Knight's attacks deal ${n} more damage.` },
+  mark: { name: 'Mark', icon: '🎯', type: 'debuff', desc: (n) => `The next time the Knight hits it, it takes ${n} extra damage. Then the Mark is used up.` },
+  vigil: { name: 'Eternal Vigil', icon: '🕯️', type: 'power', desc: (n) => `At the end of your turn, the Knight strikes a random enemy for ${n} damage.`,
+           async onTurnEnd(ctx, e, n) { const t = pick(ctx.alive()); if (t && ctx.knightAlive()) await ctx.knightAttack(t, n); } },
+  thornCrown: { name: 'Crown of Thorns', icon: '🌵', type: 'power', desc: (n) => `Whenever the Knight takes damage from an attack, he deals ${n} damage back.` },
+  blackWedding: { name: 'Black Wedding', icon: '💍', type: 'power', desc: () => `Whenever you Summon, deal that much damage to a random enemy.` },
+  darkMajesty: { name: 'Dark Majesty', icon: '👑', type: 'power', desc: (n) => `At the start of your turn, apply ${n} Mark to ALL enemies.`,
+                 onTurnStart(ctx, e, n) { ctx.applyAll('mark', n); } },
+
   // ---- The Alchemist ----
   unstable: { name: 'Unstable', icon: '💥', type: 'debuff',
               desc: (n) => `At 10 Unstable it explodes, losing 25 HP (ignores Ward). (${n}/10)` },

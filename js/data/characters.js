@@ -41,7 +41,24 @@ const CHARACTERS = {
     ],
     portrait: alchemistSVG,
   },
+  cassandra: {
+    name: 'Cassandra', short: 'Cassandra', icon: '🖤', color: '#c99cff', hp: 62, gold: 99, relic: 'locket', duo: true,
+    titles: ['The Princess of Darkness', 'Knight in Shining Armor'],
+    deck: ['shadowLash', 'shadowLash', 'shadowLash', 'shadowLash', 'veilOfNight', 'veilOfNight', 'veilOfNight', 'rally', 'lanceOfDawn', 'lanceOfDawn'],
+    tagline: 'The Princess of Darkness, and her Knight in Shining Armor.',
+    bio: 'Heir to a kingdom swallowed by the night, Cassandra learned to love the dark. Her oldest vow summons a knight forged from the last daylight: he guards her with his life, and she is not above spending it.',
+    mechanics: [
+      ['🛡️', 'Summon', 'Call your Knight, or give him more HP. He takes the damage your Ward does not stop.'],
+      ['⚔️', 'Knight', 'Some cards make him strike. Valor makes his hits stronger.'],
+      ['🎯', 'Mark', 'Cassandra marks foes. The Knight\'s next hit on a Marked enemy deals extra damage.'],
+      ['🩸', 'Sacrifice', 'Her darkest spells spend the Knight\'s HP for great power.'],
+    ],
+    portrait: princessSVG,
+  },
 };
+
+// The Knight in Shining Armor, Cassandra's summoned protector
+const KNIGHT = { name: 'Sir Aurel', title: 'Knight in Shining Armor', portrait: knightSVG };
 
 function currentCharId() { return (Game.run && Game.run.char) || 'lampwright'; }
 function currentChar() { return CHARACTERS[currentCharId()]; }
@@ -103,6 +120,93 @@ function lampwrightSVG() {
     <path d="M105 63 L119 63 L116 67 L108 67 Z" fill="#3a2a18"/>
     <path d="M112 45 L112 63" stroke="#3a2a18" stroke-width=".8" opacity=".6"/>
   </g>
+</svg>`;
+}
+
+function princessSVG() {
+  return `<svg class="portrait-svg" viewBox="0 0 140 160" aria-hidden="true">
+  <defs>
+    <radialGradient id="ccAura" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#7a2aa8" stop-opacity=".45"/><stop offset=".6" stop-color="#3a0a5a" stop-opacity=".18"/><stop offset="1" stop-color="#1a0028" stop-opacity="0"/></radialGradient>
+    <linearGradient id="ccDress" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2c1838"/><stop offset=".55" stop-color="#140a1c"/><stop offset="1" stop-color="#05020a"/></linearGradient>
+    <linearGradient id="ccSilk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a1424"/><stop offset="1" stop-color="#a0243c"/></linearGradient>
+    <linearGradient id="ccSkin" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e6dde4"/><stop offset="1" stop-color="#fbf7f8"/></linearGradient>
+    <linearGradient id="ccHair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c1622"/><stop offset="1" stop-color="#050307"/></linearGradient>
+    <linearGradient id="ccSilver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#8a8a9e"/></linearGradient>
+  </defs>
+  <circle cx="66" cy="70" r="62" fill="url(#ccAura)" class="pt-glow"/>
+  <!-- long black hair behind -->
+  <path d="M44 34 Q36 70 40 112 Q52 104 56 90 L76 90 Q82 104 94 110 Q98 70 88 34 Z" fill="url(#ccHair)"/>
+  <!-- gown -->
+  <path d="M50 70 Q40 110 22 154 L112 154 Q94 110 84 70 Z" fill="url(#ccDress)"/>
+  <path d="M67 74 L52 154 L82 154 Z" fill="url(#ccSilk)" opacity=".9"/>
+  <path d="M22 154 Q40 146 56 154 Q72 146 88 154 Q100 146 112 154" stroke="#7a4a9a" stroke-width="2" fill="none"/>
+  <path d="M30 140 Q67 128 104 140" stroke="#5a2a7a" stroke-width="1.4" fill="none" opacity=".8"/>
+  <!-- corset with lacing -->
+  <path d="M54 66 Q67 72 80 66 L78 96 Q67 100 56 96 Z" fill="#1a0c24" stroke="#5a2a7a" stroke-width="1.2"/>
+  <path d="M62 72 L72 78 M72 72 L62 78 M62 80 L72 86 M72 80 L62 86 M62 88 L72 94 M72 88 L62 94" stroke="#c0405a" stroke-width="1"/>
+  <!-- high gothic collar -->
+  <path d="M50 64 L56 50 L67 60 L78 50 L84 64 Q67 70 50 64 Z" fill="#100818" stroke="#7a4a9a" stroke-width="1.2"/>
+  <!-- arms -->
+  <path d="M52 68 Q40 86 42 104 L48 104 Q48 88 58 74 Z" fill="#100818"/>
+  <path d="M82 68 Q96 78 100 92 L95 96 Q90 84 78 76 Z" fill="#100818"/>
+  <circle cx="45" cy="106" r="3.6" fill="url(#ccSkin)"/>
+  <circle cx="98" cy="96" r="3.6" fill="url(#ccSkin)"/>
+  <!-- black rose in her hand -->
+  <path d="M98 96 L104 70" stroke="#2a3a2a" stroke-width="1.6"/>
+  <circle cx="104" cy="66" r="6.5" fill="#14060c"/><path d="M100 64 Q104 60 108 64 Q104 70 100 64 Z" fill="#5a1424"/><path d="M104 66 Q101 63 104 61" stroke="#a0243c" stroke-width="1" fill="none"/>
+  <!-- face: pale skin -->
+  <ellipse cx="67" cy="40" rx="12.5" ry="14" fill="url(#ccSkin)"/>
+  <!-- black eyes with a soft shine, dark lips -->
+  <ellipse cx="62" cy="40" rx="2.5" ry="2.2" fill="#050307"/><ellipse cx="72" cy="40" rx="2.5" ry="2.2" fill="#050307"/>
+  <circle cx="62.8" cy="39.3" r=".7" fill="#fff"/><circle cx="72.8" cy="39.3" r=".7" fill="#fff"/>
+  <path d="M58.5 37 L64 36.3 M70 36.3 L75.5 37" stroke="#14101a" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M59 43.5 Q61 44.5 63 43.5 M71 43.5 Q73 44.5 75 43.5" stroke="#b9a8c4" stroke-width=".8" fill="none" opacity=".7"/>
+  <path d="M64 48.5 Q67 50 70 48.5 Q67 51.5 64 48.5 Z" fill="#5a1024"/>
+  <!-- hair framing the face, with a straight fringe -->
+  <path d="M53 44 Q51 22 67 20 Q83 22 81 44 Q79 32 74 30 Q68 34 60 30 Q55 32 53 44 Z" fill="url(#ccHair)"/>
+  <path d="M53 40 Q50 56 52 70 L56 66 Q54 54 56 42 Z M81 40 Q84 56 82 70 L78 66 Q80 54 78 42 Z" fill="url(#ccHair)"/>
+  <!-- small dark tiara -->
+  <path d="M57 24 L60 16 L64 22 L67 12 L70 22 L74 16 L77 24 Q67 21 57 24 Z" fill="url(#ccSilver)" stroke="#2a2030" stroke-width=".8"/>
+  <path d="M67 14 L69.2 18 L67 22 L64.8 18 Z" fill="#6a1a9a"/>
+</svg>`;
+}
+
+function knightSVG() {
+  return `<svg class="portrait-svg knight-svg" viewBox="0 0 140 160" aria-hidden="true">
+  <defs>
+    <radialGradient id="kgGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fffbe0" stop-opacity=".8"/><stop offset=".45" stop-color="#ffd76a" stop-opacity=".3"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
+    <linearGradient id="kgPlate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#fff2c4"/><stop offset="1" stop-color="#d9a640"/></linearGradient>
+    <linearGradient id="kgDark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4dc98"/><stop offset="1" stop-color="#b07e2a"/></linearGradient>
+    <linearGradient id="kgCape" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".85"/><stop offset="1" stop-color="#ffd76a" stop-opacity=".15"/></linearGradient>
+    <linearGradient id="kgBlade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#fff2b0"/></linearGradient>
+  </defs>
+  <circle cx="70" cy="76" r="66" fill="url(#kgGlow)" class="pt-glow"/>
+  <!-- cape of light -->
+  <path d="M50 52 Q30 100 26 150 Q48 140 58 150 L66 70 Z" fill="url(#kgCape)"/>
+  <!-- legs -->
+  <path d="M56 112 L50 152 L62 152 L66 114 Z M74 112 L80 152 L92 152 L84 112 Z" fill="url(#kgDark)" stroke="#8a6a20" stroke-width="1"/>
+  <!-- body plate -->
+  <path d="M50 56 Q46 88 52 116 L88 116 Q94 88 90 56 Q70 46 50 56 Z" fill="url(#kgPlate)" stroke="#a8862a" stroke-width="1.4"/>
+  <path d="M70 52 L70 116" stroke="#c9a040" stroke-width="1.2"/>
+  <path d="M54 80 Q70 86 86 80 M54 96 Q70 102 86 96" stroke="#c9a040" stroke-width="1.4" fill="none"/>
+  <!-- pauldrons -->
+  <ellipse cx="48" cy="60" rx="11" ry="8" fill="url(#kgPlate)" stroke="#a8862a" stroke-width="1.4"/>
+  <ellipse cx="92" cy="60" rx="11" ry="8" fill="url(#kgPlate)" stroke="#a8862a" stroke-width="1.4"/>
+  <!-- helmet with glowing visor and plume -->
+  <path d="M56 46 Q54 18 70 16 Q86 18 84 46 Q70 52 56 46 Z" fill="url(#kgPlate)" stroke="#a8862a" stroke-width="1.4"/>
+  <path d="M60 32 L80 32 L78 37 L62 37 Z" fill="#fff9d0"/>
+  <path d="M60 32 L80 32 L78 37 L62 37 Z" fill="#ffd76a" opacity=".6" class="pt-eye"/>
+  <path d="M70 37 L70 46" stroke="#a8862a" stroke-width="1.2"/>
+  <path d="M70 16 Q80 4 96 8 Q86 10 82 20" fill="#fff2c4" stroke="#d9a640" stroke-width="1"/>
+  <!-- shield with a sun -->
+  <path d="M30 70 L50 66 L52 96 Q42 110 32 100 Z" fill="url(#kgDark)" stroke="#8a6a20" stroke-width="1.4"/>
+  <circle cx="41" cy="84" r="6" fill="#fffbe0"/>
+  <path d="M41 74 L41 94 M31 84 L51 84 M34 77 L48 91 M48 77 L34 91" stroke="#fffbe0" stroke-width="1.4" opacity=".8"/>
+  <!-- raised sword of light -->
+  <path d="M92 64 Q102 72 104 82" stroke="url(#kgDark)" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M100 78 L112 74" stroke="#8a6a20" stroke-width="3" stroke-linecap="round"/>
+  <path d="M106 76 L132 14 L136 16 L110 78 Z" fill="url(#kgBlade)" stroke="#ffe7a0" stroke-width="1" class="pt-blade"/>
+  <circle cx="134" cy="14" r="3" fill="#fff"/>
 </svg>`;
 }
 

@@ -28,6 +28,11 @@ const KEYWORDS = {
   Innate: 'Starts each combat in your hand.',
   Unplayable: 'This card cannot be played.',
   'Moon Shard': 'A 0-cost Attack card: deal 4 damage. Exhaust.',
+  Summon: 'Calls your Knight with that much HP, or gives him that much HP if he is already here.',
+  Knight: 'Your Knight in Shining Armor. He takes the damage your Ward does not block. If he falls, you take it.',
+  Valor: 'Each point makes the Knight\'s attacks deal 1 more damage.',
+  Mark: 'The next time the Knight hits a Marked enemy, it takes extra damage equal to its Mark. Then the Mark is used up.',
+  Sacrifice: 'The Knight loses that much HP. Whatever he cannot pay, you lose instead.',
   Tonic: 'A one-use potion. Use it from the top bar. You can carry a limited number.',
   Brew: 'Create a random Tonic in an empty Tonic slot.',
   Curio: 'A relic that gives a lasting bonus for the rest of the run.',
@@ -39,7 +44,7 @@ const KEYWORDS = {
   Dread: 'A Curse. Unplayable. Clogs your deck.',
   Rot: 'A Curse. If it is in your hand at the end of your turn, lose 2 HP.',
 };
-const KW_ALIAS = { 'Moon Shards': 'Moon Shard', Tonics: 'Tonic', Curios: 'Curio', Brewed: 'Brew', Burning: 'Burn', Bleeding: 'Bleed', Exhausted: 'Exhaust' };
+const KW_ALIAS = { Summons: 'Summon', Marked: 'Mark', 'Moon Shards': 'Moon Shard', Tonics: 'Tonic', Curios: 'Curio', Brewed: 'Brew', Burning: 'Burn', Bleeding: 'Bleed', Exhausted: 'Exhaust' };
 const KW_WORDS = [...Object.keys(KEYWORDS), ...Object.keys(KW_ALIAS)].sort((x, y) => y.length - x.length);
 const KW_RE = new RegExp('\\b(' + KW_WORDS.join('|') + ')\\b', 'g');
 const kwKey = (w) => KW_ALIAS[w] || w;
@@ -65,7 +70,7 @@ function cardDescHTML(card, ctx, target) {
     let cls = card.up && upVals[k] != null && upVals[k] !== d.v[k] ? 'upnum' : '';
     if (ctx && typeof val === 'number') {
       let m = val;
-      if (k[0] === 'd') m = ctx.previewDamage(val, target);
+      if (k[0] === 'd') m = d.knight ? ctx.previewKnightDamage(val, target) : ctx.previewDamage(val, target);
       else if (k[0] === 'b') m = ctx.previewBlock(val);
       if (m > val) cls = 'buffnum'; else if (m < val) cls = 'debuffnum';
       val = m;

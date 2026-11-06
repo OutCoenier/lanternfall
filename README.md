@@ -2,7 +2,7 @@
 
 *Carry the last light into the dark.*
 
-A roguelike deck-builder. Pick one of three heroes and descend through three acts to destroy Umbra, the Devouring Night.
+A roguelike deck-builder. Pick one of four heroes and descend through three acts to destroy Umbra, the Devouring Night.
 
 ## How to play
 Open `index.html` in any modern browser (Chrome, Edge or Firefox). There is nothing to install. Your run and your progress are saved automatically.
@@ -13,6 +13,7 @@ Open `index.html` in any modern browser (Chrome, Edge or Firefox). There is noth
 | 🏮 **The Lampwright** | Burn, Glow and solid defence |
 | 🌙 **The Moonblade** | Free Moon Shards, Bleed and Evade |
 | ⚗️ **The Alchemist** *(unlocks at Lantern Level 1)* | Brews Tonics mid-fight and makes enemies explode with Unstable |
+| 🖤 **Cassandra**, *the Princess of Darkness* | Fights alongside her summoned *Knight in Shining Armor*, who takes the damage her Ward does not block. Marks enemies for the Knight and Sacrifices his HP for dark power |
 
 ## Progress between runs
 - **Lantern Level:** every run earns experience equal to its score. Levels unlock the Alchemist, new cards and new curios.
@@ -28,6 +29,7 @@ Open `index.html` in any modern browser (Chrome, Edge or Firefox). There is noth
 | Lampwright cards | `js/data/cards.js` |
 | Moonblade cards | `js/data/cards_moonblade.js` |
 | Alchemist cards and unlockable cards | `js/data/cards_alchemist.js` |
+| Cassandra's cards | `js/data/cards_cassandra.js` |
 | Curios / relics | `js/data/relics.js` |
 | Tonics / potions | `js/data/potions.js` |
 | Enemies, elites, bosses, acts | `js/data/enemies.js` |

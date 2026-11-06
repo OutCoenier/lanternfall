@@ -8,6 +8,7 @@ class Combat {
     this.kind = kind; // 'fight' | 'elite' | 'boss'
     this.player = { isPlayer: true, uid: 'p', name: currentChar().name, hp: run.hp, maxHp: run.maxHp, block: 0, statuses: {} };
     this.enemies = [];
+    this.knight = null; // Cassandra's Knight in Shining Armor (summoned during combat)
     this.drawPile = [];
     this.hand = [];
     this.discardPile = [];
@@ -323,12 +324,23 @@ class Combat {
       return 0;
     }
     if (kind === 'attack' && amount > 0) {
-      if (tgt.isPlayer) Fx.at(tgt, 'claw');
-      else Fx.at(tgt, currentCharId() === 'moonblade' ? 'moonSlash' : 'slash', { col: currentChar().color });
+      if (tgt.isPlayer) Fx.at(this.knightAlive() ? this.knight : tgt, 'claw');
+      else if (!tgt.isKnight) Fx.at(tgt, src && src.isKnight ? 'slash' : currentCharId() === 'moonblade' ? 'moonSlash' : 'slash', { col: src && src.isKnight ? '#ffe9a0' : currentChar().color });
     }
     let blocked = 0;
     if (kind !== 'burn' && kind !== 'hploss') { blocked = Math.min(tgt.block, amount); tgt.block -= blocked; }
-    const hpd = amount - blocked;
+    let hpd = amount - blocked;
+    if (tgt.isPlayer && kind === 'attack' && hpd > 0 && this.knightAlive()) {
+      const k = this.knight, a = Math.min(hpd, k.hp);
+      k.hp -= a; hpd -= a;
+      this.float(k, `-${a}`, 'dmg');
+      this.hitFx(k); Fx.at(k, 'impact');
+      Sound.play('blocked');
+      if (k.hp <= 0) this.knightFalls();
+      this.renderEntity(k);
+      const thorns = this.player.statuses.thornCrown;
+      if (thorns && src && !src.dead && !src.isPlayer && !this.over) { await sleep(60); await this.damage(src, thorns, k, 'thorns'); }
+    }
     if (hpd > 0) {
       tgt.hp -= hpd;
       this.float(tgt, `-${hpd}`, kind === 'burn' ? 'burn' : 'dmg');
@@ -340,7 +352,7 @@ class Combat {
         this.run.stats.damageTaken += hpd; Fx.hurtFlash(hpd >= 12); Fx.shake(this.root, hpd >= 12 ? 12 : 6);
         if (hasRelic('bloodstone') && this.bloodstoneTurn !== this.turn && tgt.hp > 0) { this.bloodstoneTurn = this.turn; this.apply(tgt, 'might', 1, tgt); this.flashRelic('bloodstone'); }
       }
-      if (!tgt.isPlayer && src && src.isPlayer && kind === 'attack' && hpd >= 40) unlockAch('bigHit');
+      if (!tgt.isPlayer && src && (src.isPlayer || src.isKnight) && kind === 'attack' && hpd >= 40) unlockAch('bigHit');
       if (!tgt.isPlayer && kind === 'burn' && tgt.hp <= 0) unlockAch('pyre');
       else if (hpd >= 15) Fx.shake(this.root, 7);
     } else if (blocked > 0) {
@@ -364,7 +376,7 @@ class Combat {
     }
     if (!tgt.isPlayer && tgt.def.boss && !tgt.phase2 && tgt.hp > 0 && tgt.hp <= tgt.maxHp / 2) this.bossPhase2(tgt);
     if (tgt.hp <= 0) {
-      if (tgt.isPlayer) await this.playerDying(); else await this.kill(tgt);
+      if (tgt.isPlayer) await this.playerDying(); else if (tgt.isKnight) this.knightFalls(); else await this.kill(tgt);
     }
     this.renderEntity(tgt);
     if (tgt.isPlayer) renderTopbar();
@@ -509,6 +521,7 @@ class Combat {
   canPlay(card) {
     const d = cardDef(card);
     if (d.cost === -1 || !d.play) return false;
+    if (d.needsKnight && !this.knightAlive()) return false;
     const c = this.costOf(card);
     return c === 'X' || c <= this.energy;
   }
@@ -657,6 +670,7 @@ class Combat {
     this.root = root;
     this.player.el = this.entityEl(this.player);
     $('.player-side', root).appendChild(this.player.el);
+    if (currentChar().duo) $('.player-side', root).classList.add('duo');
     for (const e of this.enemies) { e.el = this.entityEl(e); $('.enemy-side', root).appendChild(e.el); }
 
     $('.end-turn', root).onclick = () => this.endTurn();
@@ -682,22 +696,24 @@ class Combat {
   }
 
   entityEl(ent) {
-    const e = el('div', 'entity ' + (ent.isPlayer ? 'player' : 'enemy'));
+    const ally = ent.isPlayer || ent.isKnight;
+    const e = el('div', 'entity ' + (ent.isPlayer ? 'player' : ent.isKnight ? 'knight ally' : 'enemy'));
     const def = ent.def || {};
     const scale = ent.isPlayer ? 1.45 : def.scale || 1;
-    const art = !ent.isPlayer && typeof ENEMY_ART !== 'undefined' && ENEMY_ART[ent.id];
-    const sprite = ent.isPlayer ? currentChar().portrait() : art ? art() : def.sprite;
+    const art = !ally && typeof ENEMY_ART !== 'undefined' && ENEMY_ART[ent.id];
+    const sprite = ent.isPlayer ? currentChar().portrait() : ent.isKnight ? KNIGHT.portrait() : art ? art() : def.sprite;
+    const title = ent.isKnight ? KNIGHT.title : ent.isPlayer && currentChar().titles ? currentChar().titles[0] : '';
     const overlay = ent.isPlayer || art ? '' : def.overlay ? `<span class="overlay">${def.overlay}</span>` : '';
     e.innerHTML = `
-      ${ent.isPlayer ? '' : '<div class="intent"></div>'}
+      ${ally ? '' : '<div class="intent"></div>'}
       <div class="sprite-wrap" style="--s:${scale}">
         <div class="aura"></div>
-        <div class="sprite${ent.isPlayer || art ? ' portrait' : ''}" style="${def.filter && !art ? `filter:${def.filter}` : ''}">${sprite}</div>${overlay}
+        <div class="sprite${ally || art ? ' portrait' : ''}" style="${def.filter && !art ? `filter:${def.filter}` : ''}">${sprite}</div>${overlay}
       </div>
-      <div class="ent-name">${esc(ent.name)}${def.elite ? ' <span class="tag elite">Elite</span>' : ''}${def.boss ? ' <span class="tag boss">Boss</span>' : ''}</div>
+      <div class="ent-name">${esc(ent.name)}${title ? `<small class="ent-title">${esc(title)}</small>` : ''}${def.elite ? ' <span class="tag elite">Elite</span>' : ''}${def.boss ? ' <span class="tag boss">Boss</span>' : ''}</div>
       <div class="hpbar"><div class="hpfill"></div><div class="ward"><span></span></div><div class="hptext"></div></div>
       <div class="statuses"></div>`;
-    if (!ent.isPlayer) {
+    if (!ally) {
       e.addEventListener('click', () => this.onEnemyClick(ent));
       e.addEventListener('mouseenter', () => { this.hoverTarget = ent; if (this.selected != null) this.renderHand(); });
       e.addEventListener('mouseleave', () => { if (this.hoverTarget === ent) { this.hoverTarget = null; if (this.selected != null) this.renderHand(); } });
@@ -727,6 +743,8 @@ class Combat {
       const g = ent.statuses.glow || 0;
       $('.aura', e).style.opacity = Math.min(1, 0.25 + g * 0.12);
       $('.aura', e).style.transform = `scale(${1 + Math.min(g, 10) * 0.06})`;
+    } else if (ent.isKnight) {
+      e.classList.toggle('dead', !!ent.dead);
     } else {
       const sel = this.selected != null && this.hand[this.selected] && cardDef(this.hand[this.selected]).target === 'enemy';
       e.classList.toggle('targetable', !ent.dead && (sel || this.potionSel != null));
@@ -962,7 +980,7 @@ class Combat {
     this.potionSel = null;
     const d = cardDef(card);
     if (!this.canPlay(card)) {
-      const msg = d.cost === -1 || !d.play ? 'This card cannot be played.' : 'Not enough Energy.';
+      const msg = d.cost === -1 || !d.play ? 'This card cannot be played.' : d.needsKnight && !this.knightAlive() ? 'Your Knight has fallen.' : 'Not enough Energy.';
       floatAt($$('.hand .card', this.root)[i], msg, 'debuff');
       Sound.play('error');
       return;
@@ -1001,6 +1019,7 @@ class Combat {
   render() {
     if (!this.root) return;
     this.renderEntity(this.player);
+    if (this.knight) this.renderEntity(this.knight);
     this.renderEnemies();
     this.renderHand();
     $('.energy-orb span', this.root).textContent = `${this.energy}/${this.maxEnergy()}`;
@@ -1055,6 +1074,82 @@ class Combat {
     this.lunge(this.player);
     await sleep(120);
   }
+  // ---------- Cassandra's Knight ----------
+  knightAlive() { return !!(this.knight && !this.knight.dead && this.knight.hp > 0); }
+  // Summon n: the Knight rises with n HP, or gains n HP (and Max HP) if he is already here.
+  summon(n) {
+    if (n <= 0 || this.over) return;
+    let k = this.knight;
+    if (!k) {
+      k = this.knight = { isKnight: true, uid: 'k', id: 'knight', name: KNIGHT.name, def: { scale: 1.3 }, hp: 0, maxHp: 0, block: 0, statuses: {}, dead: true };
+      if (this.root) { k.el = this.entityEl(k); k.el.classList.add('dead'); $('.player-side', this.root).appendChild(k.el); }
+    }
+    if (k.dead || k.hp <= 0) {
+      k.dead = false; k.hp = n; k.maxHp = n;
+      if (k.el) { k.el.classList.remove('dead', 'gone', 'spawned'); void k.el.offsetWidth; k.el.classList.add('spawned'); }
+      this.float(k, 'The Knight rises!', 'buff');
+    } else { k.hp += n; k.maxHp += n; this.float(k, `+${n} HP`, 'heal'); }
+    Sound.play('power');
+    Fx.at(k, 'shield');
+    this.renderEntity(k);
+    if (this.player.statuses.blackWedding) { const t = pick(this.alive()); if (t) this.damage(t, n, this.player, 'power'); }
+  }
+  // Sacrifice n: the Knight loses n HP. Whatever he cannot pay, Cassandra pays herself.
+  async sacrifice(n) {
+    let rest = n;
+    const k = this.knight;
+    if (this.knightAlive() && n > 0) {
+      const a = Math.min(n, k.hp);
+      k.hp -= a; rest -= a;
+      this.float(k, `-${a}`, 'dmg');
+      Fx.at(k, 'bleed'); Sound.play('debuff');
+      if (k.hp <= 0) this.knightFalls();
+      this.renderEntity(k);
+    }
+    if (rest > 0) await this.damage(this.player, rest, null, 'hploss');
+  }
+  knightFalls() {
+    const k = this.knight;
+    if (!k || k.dead) return;
+    k.hp = 0; k.dead = true;
+    this.float(k, 'The Knight falls!', 'debuff');
+    Fx.at(k, 'death'); Sound.play('death');
+    if (k.el) k.el.classList.add('dead');
+    this.renderEntity(k);
+  }
+  // Damage of one Knight hit: base + Valor + any Mark on the target.
+  knightDamage(t, base, consume) {
+    let b = base + (this.player.statuses.valor || 0);
+    if (t && t.statuses.mark) { b += t.statuses.mark; if (consume) { delete t.statuses.mark; this.renderEntity(t); } }
+    return this.calcDamage(this.knight || { statuses: {} }, t, b);
+  }
+  previewKnightDamage(base, target) {
+    if (!target) { const a = this.alive(); target = this.hoverTarget && !this.hoverTarget.dead ? this.hoverTarget : a.length === 1 ? a[0] : null; }
+    return this.knightDamage(target, base, false);
+  }
+  async knightAttack(t, base, hits = 1) {
+    if (!this.knightAlive()) { this.float(this.player, 'Your Knight has fallen', 'debuff'); return 0; }
+    let total = 0;
+    for (let i = 0; i < hits; i++) {
+      if (!t || t.dead || this.over || !this.knightAlive()) break;
+      Sound.play('swing');
+      this.lunge(this.knight);
+      await sleep(140);
+      total += await this.damage(t, this.knightDamage(t, base, true), this.knight, 'attack');
+      if (hits > 1) await sleep(140);
+    }
+    return total;
+  }
+  async knightAttackAll(base) {
+    if (!this.knightAlive()) { this.float(this.player, 'Your Knight has fallen', 'debuff'); return 0; }
+    Sound.play('swing');
+    this.lunge(this.knight);
+    await sleep(140);
+    let total = 0;
+    for (const t of this.alive()) total += await this.damage(t, this.knightDamage(t, base, true), this.knight, 'attack');
+    return total;
+  }
+
   // ---------- The Alchemist ----------
   brew(n = 1) {
     for (let k = 0; k < n; k++) {

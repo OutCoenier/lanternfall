@@ -84,9 +84,9 @@ function showCharSelect() {
     const R = RELICS[ch.relic];
     const locked = !heroUnlocked(id);
     const card = el('div', 'char-card' + (locked ? ' locked' : ''), `
-      <div class="char-portrait" style="--cc:${ch.color}">${ch.portrait()}</div>
+      <div class="char-portrait${ch.duo ? ' duo' : ''}" style="--cc:${ch.color}">${ch.portrait()}${ch.duo ? KNIGHT.portrait() : ''}</div>
       <h2>${esc(ch.name)}</h2>
-      <p class="char-tag">${esc(ch.tagline)}</p>
+      ${ch.titles ? `<div class="duo-titles"><span class="t-dark">${esc(ch.titles[0])}</span><span class="t-and">and her</span><span class="t-light">${esc(ch.titles[1])}</span></div>` : `<p class="char-tag">${esc(ch.tagline)}</p>`}
       <div class="char-stats"><span>❤️ ${ch.hp} HP</span><span data-tip="<b>${esc(R.name)}</b><br>${esc(R.desc)}">${R.icon} ${esc(R.name)}</span>
         <span>🏆 ${p.wins[id] || 0} wins</span></div>
       <p class="char-bio">${esc(ch.bio)}</p>

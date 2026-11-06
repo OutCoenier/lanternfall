@@ -98,3 +98,23 @@ body, .card-cost, .energy-orb span, .hptext, .price, .num, .stats b, .h-score b,
 .enemy-side .sprite:not(.portrait) .ico { width: 1.35em; height: 1.35em; }
 .overlay-box:has(.choose) { max-width: min(1240px, 95vw); }
 .choose .card-grid.few { flex-wrap: nowrap; }
+
+/* ---------- Cassandra and her Knight ---------- */
+.player-side.duo { width: 38%; gap: 0; justify-content: center; }
+.player-side.duo .entity.knight { margin-left: -2%; }
+.entity.knight.dead { opacity: 0; transform: translateY(20px) scale(.85); filter: grayscale(1) blur(2px); pointer-events: none; }
+.entity.knight .sprite.portrait { filter: drop-shadow(0 0 10px #ffe9a0) drop-shadow(0 0 22px #ffd76a88); }
+.entity.knight .hpfill { background: linear-gradient(#fff2b0, #e0a83a); }
+.entity.knight .ent-name { color: #ffe9a0; }
+.ent-title { display: block; font-family: 'Alegreya Sans SC', 'Alegreya Sans', sans-serif; font-size: .72em; letter-spacing: .08em; color: #c9b9a6; font-weight: 500; margin-top: -2px; }
+.entity.player .ent-title { color: #c99cff; }
+.char-portrait.duo { display: flex; width: 280px; justify-content: center; }
+.char-portrait.duo .portrait-svg { width: 50%; height: 100%; }
+.char-portrait.duo .knight-svg { filter: drop-shadow(0 0 10px #ffe9a0); }
+.duo-titles { display: flex; flex-direction: column; align-items: center; margin: 2px 0 10px; line-height: 1.1; }
+.duo-titles span { display: flex; align-items: center; gap: 10px; }
+.duo-titles .t-dark, .duo-titles .t-light { font-family: 'Grenze Gotisch', serif; font-size: 1.25rem; letter-spacing: .05em; }
+.duo-titles .t-dark { color: #c99cff; text-shadow: 0 0 10px #7a2aa8; }
+.duo-titles .t-light { color: #ffe9a0; text-shadow: 0 0 10px #ffb347; }
+.duo-titles .t-dark::before, .duo-titles .t-dark::after, .duo-titles .t-light::before, .duo-titles .t-light::after { content: ""; width: 26px; height: 1px; background: linear-gradient(90deg, transparent, currentColor, transparent); }
+.duo-titles .t-and { font-style: italic; font-size: .85rem; color: #a99ab8; margin: 1px 0; }

@@ -213,6 +213,7 @@ return {
   rune: `<circle cx="32" cy="32" r="26" fill="url(#igDark)" ${O}/><path d="M24 16 L24 48 M24 24 L40 16 M24 34 L40 26" stroke="#ffd76a" stroke-width="4" stroke-linecap="round" fill="none"/>`,
   bomb: `<circle cx="28" cy="38" r="21" fill="url(#igDark)" ${O}/><rect x="34" y="12" width="12" height="10" rx="2" fill="url(#igStone)" ${O} transform="rotate(35 40 17)"/><path d="M44 12 C48 6 54 8 56 4" stroke="#8a6a3a" stroke-width="3" fill="none"/>${star(57, 4, 7, 2.5, 5, '#ffd23a', 'stroke-width="1.2"')}<ellipse cx="20" cy="30" rx="6" ry="4" ${HI}/>`,
   firecracker: `<rect x="16" y="18" width="20" height="42" rx="3" fill="url(#igRed)" ${O} transform="rotate(-20 26 39)"/><path d="M18 30 L36 24 M22 46 L40 40" stroke="#ffd36a" stroke-width="3" opacity=".9"/><path d="M30 18 C34 10 40 12 44 6" stroke="#8a6a3a" stroke-width="3" fill="none"/>${star(47, 5, 8, 3, 5, '#ffd23a', 'stroke-width="1.2"')}`,
+  scales: `<path d="M32 8 L32 56 M18 58 L46 58 M10 16 L54 16" stroke="#1c1220" stroke-width="6" stroke-linecap="round"/><path d="M32 8 L32 56 M18 58 L46 58 M10 16 L54 16" stroke="url(#igGold)" stroke-width="3" stroke-linecap="round"/><path d="M10 16 L2 36 L18 36 Z M54 16 L46 36 L62 36 Z" stroke="#1c1220" stroke-width="1.6" fill="none"/><path d="M2 36 C2 44 18 44 18 36 Z M46 36 C46 44 62 44 62 36 Z" fill="url(#igGold)" ${O}/><circle cx="32" cy="8" r="4" fill="url(#igGold)" ${O}/>`,
   // ---------- faces ----------
   devil: `<path d="M12 24 L6 6 L22 16 Z M52 24 L58 6 L42 16 Z" fill="url(#igRed)" ${O}/><circle cx="32" cy="36" r="24" fill="url(#igPurple)" ${O}/><path d="M18 30 L28 34 M46 30 L36 34" stroke="#1c1220" stroke-width="4" stroke-linecap="round"/><circle cx="24" cy="38" r="3" fill="#ffe680"/><circle cx="40" cy="38" r="3" fill="#ffe680"/><path d="M20 46 Q32 54 44 46" stroke="#1c1220" stroke-width="3" fill="none"/>`,
   angry: `<circle cx="32" cy="34" r="25" fill="url(#igRed)" ${O}/><path d="M16 26 L28 32 M48 26 L36 32" stroke="#1c1220" stroke-width="4" stroke-linecap="round"/><circle cx="24" cy="36" r="3" fill="#1c1220"/><circle cx="40" cy="36" r="3" fill="#1c1220"/><path d="M22 50 Q32 42 42 50" stroke="#1c1220" stroke-width="3.5" fill="none"/>`,
@@ -271,7 +272,7 @@ const EMOJI_ICON = {
   '🎯': 'target', '🎲': 'dice', '🎭': 'mask', '🎵': 'note', '🎼': 'note', '♪': 'note', '♫': 'note', '♩': 'note', '🎐': 'windChime', '🔯': 'sigil', '🔰': 'chevronShield',
   '♻': 'recycle', '🔄': 'recycle', '😈': 'devil', '😡': 'angry', '😴': 'sleep', '👤': 'silhouette', '👻': 'ghost', '💃': 'dancer', '👣': 'footprints', '🩰': 'shoes',
   '🧙': 'mage', '🧙‍♂': 'mage', '🦉': 'owl', '🦋': 'butterfly', '🦷': 'tooth', '🐚': 'shell', '🦅': 'eagle', '🪱': 'worm', '🐛': 'worm', '🐍': 'snake',
-  '🐙': 'octopus', '🦀': 'crab', '🐉': 'dragon', '🐺': 'wolf', '🦔': 'hedgehog', '🦗': 'cricket', '🪲': 'beetle', '🦠': 'microbe', '💣': 'bomb', '🧨': 'firecracker', '👹': 'ogre', '🧌': 'troll', '🧟': 'zombie',
+  '🐙': 'octopus', '🦀': 'crab', '🐉': 'dragon', '🐺': 'wolf', '🦔': 'hedgehog', '🦗': 'cricket', '🪲': 'beetle', '🦠': 'microbe', '💣': 'bomb', '⚖': 'scales', '🧨': 'firecracker', '👹': 'ogre', '🧌': 'troll', '🧟': 'zombie',
 };
 
 function iconName(emoji) { return EMOJI_ICON[String(emoji).replace(/️/g, '')] || null; }

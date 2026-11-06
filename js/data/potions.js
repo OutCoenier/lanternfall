@@ -32,6 +32,8 @@ const POTIONS = {
               use: (c) => c.selfApply('evade', 2) },
   volatile: { name: 'Volatile Tonic', icon: '🧪', hue: 90, rarity: 'common', char: 'alchemist', target: 'enemy', desc: 'Apply 8 Unstable to an enemy.',
               use: (c, t) => c.apply(t, 'unstable', 8) },
+  holyWater: { name: 'Holy Water', icon: '💧', hue: 40, rarity: 'common', char: 'cassandra', desc: 'Summon 12.',
+              use: (c) => c.summon(12) },
   fortitude:{ name: 'Liquid Fortitude', icon: '🧪', hue: 260, rarity: 'uncommon', desc: 'Gain 2 Fortitude.',
               use: (c) => c.selfApply('fortitude', 2) },
 };
