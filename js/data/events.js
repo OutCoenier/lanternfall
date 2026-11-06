@@ -38,7 +38,7 @@ const EVENTS = {
   lostFlame: { name: 'A Lost Flame', art: '🔥', acts: [1, 2, 3],
     text: 'A tiny flame drifts alone through the dark, flickering weakly. It turns toward your lantern as if recognizing an old friend.',
     options: () => [
-      { label: 'Absorb it', desc: 'Raise your Max HP by 7.', action: async () => { Game.run.maxHp += 7; Game.run.hp += 7; return 'The flame settles into your chest. You feel stronger.'; } },
+      { label: 'Absorb it', desc: 'Raise your Max HP by 7.', action: async () => { gainMaxHp(7); return 'The flame settles into your chest. You feel stronger.'; } },
       { label: 'Shelter it', desc: 'Upgrade a card of your choice.', disabled: !Game.run.deck.some(canUpgrade),
         action: async () => (await chooseUpgradeCard()) ? 'The flame nests in your deck, tempering it.' : 'The flame drifts away.' },
     ] },
@@ -75,7 +75,7 @@ const EVENTS = {
       { label: 'Buy tonics', desc: 'Pay 35 gold: gain 2 random Tonics.', disabled: run.gold < 35,
         action: async () => { run.gold -= 35; obtainPotion(randomPotion()); obtainPotion(randomPotion()); return '"Pleasure doing business!"'; } },
       { label: 'Drink the experiment', desc: '50%: +6 Max HP. 50%: lose 8 HP.',
-        action: async () => { if (chance(0.5)) { run.maxHp += 6; run.hp += 6; return 'It tastes like starlight. You feel hardier!'; } loseHp(8); return 'You cough up smoke for a full minute. "Hm. Needs work."'; } },
+        action: async () => { if (chance(0.5)) { gainMaxHp(6); return 'It tastes like starlight. You feel hardier!'; } loseHp(8); return 'You cough up smoke for a full minute. "Hm. Needs work."'; } },
       { label: 'Leave', desc: 'Nothing happens.', action: async () => '"Your loss!"' },
     ] },
   forge: { name: 'The Abandoned Forge', art: '⚒️', acts: [1, 2, 3],

@@ -1,0 +1,94 @@
+/* ===== Bigger, easier-to-read layout (loaded last) =====
+   Sizes grow with the window height, so a big screen gets big text and characters,
+   while a small laptop screen still fits everything. Phones keep their own layout. */
+
+/* Numbers always sit on the line (the fonts' default old-style digits looked off-centre) */
+body, .card-cost, .energy-orb span, .hptext, .price, .num, .stats b, .h-score b, .lv-xp, .tb-stat { font-variant-numeric: lining-nums tabular-nums; }
+.card-cost { font-family: 'Alegreya Sans', sans-serif; font-weight: 800; line-height: 1; }
+.card-cost { width: calc(var(--w) * 0.23); height: calc(var(--w) * 0.23); font-size: calc(var(--w) * 0.14); top: calc(var(--w) * -0.06); left: calc(var(--w) * -0.06); }
+.energy-orb span { font-family: 'Alegreya Sans', sans-serif; font-weight: 800; line-height: 1; }
+
+/* Fallen enemies leave the line-up; crowded fights shrink to fit */
+.entity.gone { display: none; }
+.enemy-side .sprite-wrap { width: calc(var(--base, 120px) * var(--s) * var(--squeeze, 1)); height: calc(var(--base, 120px) * var(--s) * var(--squeeze, 1)); }
+.enemy-side .sprite:not(.portrait) { font-size: calc(var(--base, 120px) * .73 * var(--s) * var(--squeeze, 1)); }
+.enemy-side .entity { width: max(calc(130px * var(--squeeze, 1)), calc(var(--base, 120px) * var(--s) * .9 * var(--squeeze, 1))); flex-shrink: 1; min-width: 0; }
+.enemy-side { min-width: 0; }
+
+/* Keyword explanations inside tooltips */
+.tip-kw { margin-top: 6px; padding-top: 6px; border-top: 1px solid #ffffff22; font-size: .92em; color: #d9cbb4; }
+.kw[data-tip] { cursor: help; border-bottom: 1px dotted #ffd76a88; }
+.up-toggle { display: inline-flex; margin: 0 auto 6px; font-size: 1rem; cursor: pointer; }
+.card.preview .card-name { color: var(--green); }
+
+@media (min-height: 561px) {
+  html, body { font-size: clamp(17px, calc(0.55vw + 0.85vh), 21px); }
+
+  /* Cards */
+  .combat { --cw: clamp(150px, 17.5vh, 196px); --base: clamp(140px, 19vh, 215px); }
+  .combat .card { --w: var(--cw); }
+  .combat-bottom { height: calc(var(--cw) * 1.42 + 22px); }
+  .hand { height: calc(var(--cw) * 1.42 + 12px); }
+  .combat-prompt { bottom: calc(var(--cw) * 1.42 + 34px); font-size: 1.1rem; }
+  .card-grid .card { --w: clamp(165px, 19vh, 210px); }
+  .card-grid.few .card { --w: clamp(185px, 23vh, 240px); }
+  .shop-item .card, .deck-fan .fan-card { --w: clamp(150px, 17vh, 190px); }
+  .card-name { font-size: calc(var(--w) * 0.076); }
+  .card-desc { font-size: calc(var(--w) * 0.09); line-height: 1.15; }
+  .card-desc.long { font-size: calc(var(--w) * 0.079); }
+  .card-desc.vlong { font-size: calc(var(--w) * 0.072); }
+  .card-type { font-size: calc(var(--w) * 0.058); }
+
+  /* Fighters, health, statuses, intents */
+  .ent-name { font-size: 1.15rem; }
+  .hpbar { width: clamp(150px, 18vh, 200px); height: 20px; border-radius: 10px; }
+  .hptext { font-size: .9rem; }
+  .ward { width: 36px; height: 38px; font-size: 1rem; left: -24px; }
+  .statuses { max-width: 240px; gap: 4px; }
+  .st { width: 1.9rem; height: 1.9rem; font-size: 1.25rem; border-radius: 7px; }
+  .st i { font-size: .8rem; }
+  .intent { height: 46px; }
+  .intent-inner { font-size: 1.4rem; padding: 3px 12px; }
+  .floater { font-size: 2rem; }
+  .floater.movename { font-size: 1.25rem; }
+  .banner { font-size: 4rem; }
+
+  /* Bottom bar */
+  .cb-left, .cb-right { width: 190px; }
+  .energy-orb { width: 100px; height: 100px; }
+  .energy-orb span { font-size: 2.1rem; }
+  .end-turn { font-size: 1.35rem; padding: 12px 26px; }
+  .pile-btn { font-size: 1.25rem; padding: 8px 14px; }
+
+  /* Top bar, curios and tonics */
+  #topbar { height: 58px; }
+  .tb-name { font-size: 1.3rem; }
+  .tb-stat { font-size: 1.2rem; }
+  .tb-mid { font-size: 1.05rem; }
+  .potion-slot { width: 42px; height: 42px; font-size: 1.5rem; }
+  #relicbar { height: 48px; }
+  .relic { font-size: 1.8rem; }
+
+  /* Tooltips and menus */
+  #tooltip { font-size: 1rem; max-width: 360px; padding: 10px 14px; }
+  .btn { font-size: 1.15rem; }
+  .btn.small { font-size: 1rem; }
+  .event-option, .reward-item, .rest-option, .boss-relic { font-size: 1.1rem; }
+  .big-icon { font-size: 2.6rem; }
+
+  /* Map */
+  .map-node { width: 58px; height: 58px; font-size: 1.7rem; }
+  .map-node.boss-node { width: 124px; height: 124px; }
+  .boss-mini { width: 104px; height: 104px; }
+  .map-legend { font-size: 1.1rem; }
+  .map-token { width: 56px; height: 66px; }
+}
+
+/* Hand-drawn icons (they replace every emoji) */
+.ico { width: 1.15em; height: 1.15em; display: inline-block; vertical-align: -0.2em; overflow: visible; flex-shrink: 0; }
+.sprite .ico, .big-icon .ico, .event-art .ico, .go-icon .ico, .title-lantern .ico, .campfire .ico, .chest .ico, .merchant .ico, .br-icon .ico, .ri-icon .ico { width: 1em; height: 1em; vertical-align: middle; }
+.map-node .ico { width: 1em; height: 1em; }
+.st .ico { width: 1em; height: 1em; }
+.enemy-side .sprite:not(.portrait) .ico { width: 1.35em; height: 1.35em; }
+.overlay-box:has(.choose) { max-width: min(1240px, 95vw); }
+.choose .card-grid.few { flex-wrap: nowrap; }

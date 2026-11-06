@@ -198,6 +198,14 @@ function gainGold(n) {
   checkRunAchievements();
   renderTopbar(true);
 }
+function gainMaxHp(n) {
+  const run = Game.run;
+  run.maxHp += n;
+  run.hp = Math.min(run.maxHp, run.hp + n);
+  if (Game.combat) { Game.combat.player.maxHp += n; Game.combat.player.hp = Math.min(Game.combat.player.maxHp, Game.combat.player.hp + n); }
+  Sound.play('heal');
+  renderTopbar(true);
+}
 function loseHp(n) {
   const run = Game.run;
   run.hp = Math.max(1, run.hp - n);

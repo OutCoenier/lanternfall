@@ -485,13 +485,15 @@ function buildArt(id) {
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${ART_W * 2}" height="${ART_H * 2}" viewBox="0 0 ${ART_W} ${ART_H}" preserveAspectRatio="xMidYMid slice">`
     + `<defs><linearGradient id="as" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P[0]}"/><stop offset="1" stop-color="${P[1]}"/></linearGradient>`
     + `<radialGradient id="ag"><stop offset="0" stop-color="${P[2]}" stop-opacity=".75"/><stop offset=".45" stop-color="${P[2]}" stop-opacity=".2"/><stop offset="1" stop-color="${P[2]}" stop-opacity="0"/></radialGradient>`
-    + ART_DEFS + `</defs>`
+    + ART_DEFS + ICON_DEFS + `</defs>`
     + `<rect width="${ART_W}" height="${ART_H}" fill="url(#as)"/>`
     + (SCENES[spec.scene] || SCENES.plain)(r, P)
     + `<ellipse cx="${cx}" cy="${cy}" rx="70" ry="48" fill="url(#ag)"/>`;
   for (const k of fx) if (FX[k].back) svg += FX[k].back(r, P, cx, cy, spec);
   for (const sb of subjects) {
-    svg += `<text x="${sb.x}" y="${sb.y}" font-size="${sb.size}" text-anchor="middle" dominant-baseline="central" font-family="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif" filter="url(#art-sh)"${sb.rot ? ` transform="rotate(${sb.rot} ${sb.x} ${sb.y})"` : ''}>${sb.e}</text>`;
+    const nm = iconName(sb.e);
+    if (nm) svg += `<g filter="url(#art-sh)" transform="translate(${sb.x} ${sb.y})${sb.rot ? ` rotate(${sb.rot})` : ''} scale(${((sb.size / 64) * 1.12).toFixed(3)}) translate(-32 -32)">${iconMarkup(nm)}</g>`;
+    else svg += `<text x="${sb.x}" y="${sb.y}" font-size="${sb.size}" text-anchor="middle" dominant-baseline="central" filter="url(#art-sh)">${sb.e}</text>`;
   }
   for (const k of fx) if (FX[k].front) svg += FX[k].front(r, P, cx, cy, spec);
   svg += `<rect width="${ART_W}" height="${ART_H}" fill="url(#art-vig)"/></svg>`;

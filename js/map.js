@@ -68,9 +68,10 @@ function availableNodes() {
 function renderMapInto(container, interactive) {
   const run = Game.run, m = run.map;
   const act = ACTS[run.act - 1];
-  const W = 640, ROW_H = 84, TOP = 150, BOTTOM = 70;
+  const big = window.innerHeight > 560;
+  const W = big ? 760 : 640, ROW_H = big ? 100 : 84, TOP = big ? 175 : 150, BOTTOM = big ? 80 : 70;
   const H = TOP + (MAP_ROWS - 1) * ROW_H + BOTTOM;
-  const pos = (n) => n.type === 'boss' ? { x: W / 2, y: 70 } : { x: (n.c + 0.5) * (W / MAP_COLS) + n.jx, y: H - BOTTOM - n.r * ROW_H + n.jy };
+  const pos = (n) => n.type === 'boss' ? { x: W / 2, y: big ? 86 : 70 } : { x: (n.c + 0.5) * (W / MAP_COLS) + n.jx, y: H - BOTTOM - n.r * ROW_H + n.jy };
   const avail = interactive ? availableNodes() : [];
   const visited = new Set(run.path.map((p) => p.r + ',' + p.c));
   const pathEdges = new Set();

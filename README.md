@@ -37,6 +37,7 @@ Open `index.html` in any modern browser (Chrome, Edge or Firefox). There is noth
 | Levels, Depths, achievements, daily runs | `js/meta.js` |
 | First-fight tutorial | `js/tutorial.js` |
 | Card pictures | `js/art.js` |
+| Icons (every icon in the game, hand-drawn as SVG) | `js/icons.js` |
 | Sound effects and music | `js/audio.js` |
 | Combat rules and animations | `js/combat.js`, `js/fx.js` |
 | Screens (title, shop, rest, journal, library) | `js/screens.js` |

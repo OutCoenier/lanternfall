@@ -1,27 +1,57 @@
 // ===== Shared UI: cards, tooltips, overlays, top bar =====
 'use strict';
 
+// Every game word that has a special meaning. Wherever one of these appears (cards, curios,
+// tonics, statuses, intents, events, menus) it is highlighted and explained on hover.
 const KEYWORDS = {
   Burn: 'At the start of its turn, loses HP equal to its Burn (ignores Ward), then Burn decreases by 1.',
   Glow: 'The light of your lantern. Stays between turns. Some cards grow stronger with Glow, others spend it.',
   Ward: 'Blocks incoming damage. Removed at the start of your turn.',
   Might: 'Increases Attack damage by 1 per stack.',
-  Exposed: 'Takes 50% more damage from Attacks.',
-  Sapped: 'Deals 25% less damage with Attacks.',
-  Brittle: 'Gains 25% less Ward from cards.',
   Fortitude: 'Increases Ward gained from cards by 1 per stack.',
-  Spines: 'When attacked, deals damage back to the attacker.',
-  Exhaust: 'Removed until the end of combat.',
-  Ethereal: 'If this is in your hand at the end of your turn, it is Exhausted.',
-  Unplayable: 'This card cannot be played.',
-  Ash: 'A useless Status card. Unplayable. Ethereal.',
-  Innate: 'Starts each combat in your hand.',
+  Exposed: 'Takes 50% more damage from Attacks. Wears off over a few rounds.',
+  Sapped: 'Deals 25% less damage with Attacks. Wears off over a few rounds.',
+  Brittle: 'Gains 25% less Ward from cards. Wears off over a few rounds.',
+  Spines: 'When attacked, deals that much damage back to the attacker.',
   Bleed: 'Whenever it is hit by an Attack, loses extra HP equal to its Bleed. Decreases by 1 at the end of its turn.',
   Evade: 'Completely avoids the next Attack hit. Lasts until used.',
-  'Moon Shards': 'A 0-cost Attack: deal 4 damage. Exhaust.',
-  'Moon Shard': 'A 0-cost Attack: deal 4 damage. Exhaust.',
+  Unstable: 'When it reaches 10, the enemy explodes and loses 25 HP (ignores Ward). Then it resets.',
+  Mending: 'At the end of its turn, heals that much HP. Then Mending decreases by 1.',
+  Fervor: 'At the end of its turn, gains that much Might.',
+  Shell: 'At the end of its turn, gains Ward. Taking unblocked Attack damage reduces Shell by 1.',
+  Nullify: 'Cancels the next debuff applied to it.',
+  Wrath: 'Gains Might whenever you play a Skill.',
+  Coil: 'The first time it takes Attack damage, it gains Ward.',
+  Primed: 'Your next Attack deals extra damage.',
+  Exhaust: 'Removed until the end of combat.',
+  Ethereal: 'If this is in your hand at the end of your turn, it is Exhausted.',
+  Innate: 'Starts each combat in your hand.',
+  Unplayable: 'This card cannot be played.',
+  'Moon Shard': 'A 0-cost Attack card: deal 4 damage. Exhaust.',
+  Tonic: 'A one-use potion. Use it from the top bar. You can carry a limited number.',
+  Brew: 'Create a random Tonic in an empty Tonic slot.',
+  Curio: 'A relic that gives a lasting bonus for the rest of the run.',
+  Energy: 'Spent to play cards. Refills at the start of each turn.',
+  Ash: 'A useless Status card. Unplayable. Ethereal.',
+  Muck: 'A Status card that costs 1 Energy to clear out. Exhaust.',
+  Slag: 'A Status card. If it is in your hand at the end of your turn, take 3 damage.',
+  Gloom: 'A Status card. When drawn, lose 1 Energy. Ethereal.',
+  Dread: 'A Curse. Unplayable. Clogs your deck.',
+  Rot: 'A Curse. If it is in your hand at the end of your turn, lose 2 HP.',
 };
-const KW_RE = new RegExp('\\b(' + Object.keys(KEYWORDS).join('|') + ')\\b', 'g');
+const KW_ALIAS = { 'Moon Shards': 'Moon Shard', Tonics: 'Tonic', Curios: 'Curio', Brewed: 'Brew', Burning: 'Burn', Bleeding: 'Bleed', Exhausted: 'Exhaust' };
+const KW_WORDS = [...Object.keys(KEYWORDS), ...Object.keys(KW_ALIAS)].sort((x, y) => y.length - x.length);
+const KW_RE = new RegExp('\\b(' + KW_WORDS.join('|') + ')\\b', 'g');
+const kwKey = (w) => KW_ALIAS[w] || w;
+const kwTip = (w) => `<b>${kwKey(w)}</b>: ${KEYWORDS[kwKey(w)]}`;
+// Plain text in, HTML out: keywords highlighted, each with its own hover explanation.
+function kwText(text) { return esc(text).replace(KW_RE, (w) => `<span class="kw" data-tip="${kwTip(w)}">${w}</span>`); }
+// Explanations for every keyword that appears in some text (used by tooltips).
+function kwDefsFor(text, skip = []) {
+  const found = [];
+  for (const m of String(text).replace(/<[^>]*>/g, ' ').matchAll(KW_RE)) { const k = kwKey(m[1]); if (!found.includes(k) && !skip.includes(k)) found.push(k); }
+  return found;
+}
 
 function costOfCard(card, ctx) { return ctx ? ctx.costOf(card) : cardBaseCost(card); }
 
@@ -29,7 +59,7 @@ function cardDescHTML(card, ctx, target) {
   const d = cardDef(card);
   const v = cardVals(card);
   const upVals = d.up || {};
-  let txt = esc(d.desc).replace(KW_RE, '<span class="kw">$1</span>');
+  let txt = kwText(d.desc);
   txt = txt.replace(/\{(\w+)\}/g, (_, k) => {
     let val = v[k];
     let cls = card.up && upVals[k] != null && upVals[k] !== d.v[k] ? 'upnum' : '';
@@ -43,16 +73,16 @@ function cardDescHTML(card, ctx, target) {
     return `<span class="num ${cls}">${val}</span>`;
   });
   const pre = [], post = [];
-  if (d.cost === -1) pre.push('<span class="kw">Unplayable</span>.');
-  if (cardFlag(card, 'innate')) pre.push('<span class="kw">Innate</span>.');
-  if (cardFlag(card, 'ethereal')) post.push('<span class="kw">Ethereal</span>.');
-  if (cardFlag(card, 'exhaust')) post.push('<span class="kw">Exhaust</span>.');
+  if (d.cost === -1) pre.push(kwText('Unplayable') + '.');
+  if (cardFlag(card, 'innate')) pre.push(kwText('Innate') + '.');
+  if (cardFlag(card, 'ethereal')) post.push(kwText('Ethereal') + '.');
+  if (cardFlag(card, 'exhaust')) post.push(kwText('Exhaust') + '.');
   return [...pre, txt, ...post].join(' ');
 }
 
 function cardKeywordTips(card) {
   const d = cardDef(card);
-  const found = new Set((d.desc.match(KW_RE) || []));
+  const found = new Set(kwDefsFor(d.desc));
   if (cardFlag(card, 'exhaust')) found.add('Exhaust');
   if (cardFlag(card, 'ethereal')) found.add('Ethereal');
   if (d.cost === -1) found.add('Unplayable');
@@ -88,7 +118,13 @@ function cardEl(card, opts = {}) {
   document.addEventListener('mouseover', (ev) => {
     const t = ev.target.closest('[data-tip]');
     if (!t) { tip().style.display = 'none'; return; }
-    tip().innerHTML = t.dataset.tip;
+    let html = t.dataset.tip;
+    if (!t.classList.contains('card') && !t.classList.contains('kw')) {
+      const already = [...html.matchAll(/<b>([^<]+)<\/b>:/g)].map((m) => m[1]);
+      const defs = kwDefsFor(html, already);
+      if (defs.length) html += '<div class="tip-kw">' + defs.map((k) => `<b>${k}</b>: ${KEYWORDS[k]}`).join('<br>') + '</div>';
+    }
+    tip().innerHTML = html;
     tip().style.display = 'block';
   });
   document.addEventListener('mousemove', (ev) => {
@@ -157,6 +193,7 @@ function chooseCards(cards, { title = 'Choose a card', subtitle = '', canSkip = 
     wrap.appendChild(el('h2', '', esc(title)));
     if (subtitle) wrap.appendChild(el('p', 'sub', subtitle));
     const grid = el('div', 'card-grid' + (cards.length <= 4 ? ' few' : ''));
+    if (preview !== 'upgrade' && cards.some(canUpgrade)) wrap.appendChild(upgradeToggle(grid, cards));
     let done = false;
     const finish = (i) => { if (done) return; done = true; closeOverlay(); resolve(i); };
     cards.forEach((c, i) => {
@@ -185,6 +222,7 @@ function viewCards(cards, title) {
   const wrap = el('div', 'choose');
   wrap.appendChild(el('h2', '', esc(title) + ` <small>(${cards.length})</small>`));
   const grid = el('div', 'card-grid');
+  if (cards.some(canUpgrade)) wrap.appendChild(upgradeToggle(grid, cards));
   cards.forEach((c) => { const s = el('div', 'card-slot static'); s.appendChild(cardEl(c)); grid.appendChild(s); });
   if (!cards.length) grid.appendChild(el('p', 'sub', 'Empty.'));
   wrap.appendChild(grid);
@@ -192,6 +230,24 @@ function viewCards(cards, title) {
   b.onclick = closeOverlay;
   wrap.appendChild(b);
   openOverlay(wrap, { wide: true });
+}
+
+// A 'Show upgrades' switch: swaps every card in the grid to its upgraded version and back.
+let showUpgrades = false;
+function upgradeToggle(grid, cards) {
+  const lab = el('label', 'chip toggle up-toggle', `<input type="checkbox" ${showUpgrades ? 'checked' : ''}> Show upgrades`);
+  const apply = () => {
+    [...grid.querySelectorAll(':scope > .card-slot')].forEach((slot, i) => {
+      const c = cards[i]; if (!c) return;
+      const show = showUpgrades && canUpgrade(c);
+      const n = cardEl(show ? { ...c, up: true } : c);
+      if (show) n.classList.add('preview');
+      const old = slot.querySelector('.card'); if (old) slot.replaceChild(n, old);
+    });
+  };
+  $('input', lab).onchange = (e) => { showUpgrades = e.target.checked; apply(); };
+  if (showUpgrades) setTimeout(apply);
+  return lab;
 }
 
 function sortDeck(cards) {

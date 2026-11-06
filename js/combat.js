@@ -395,7 +395,7 @@ class Combat {
   async kill(e) {
     e.dead = true; e.hp = 0; e.block = 0;
     Fx.at(e, 'death');
-    if (e.el) e.el.classList.add('dead');
+    if (e.el) { e.el.classList.add('dead'); const node = e.el; setTimeout(() => { if (node.classList.contains('dead')) node.classList.add('gone'); this.fitEnemies(); }, 900); }
     Sound.play('death');
     this.run.stats.kills++;
     if (e.statuses.sporeBurst) this.apply(this.player, 'exposed', e.statuses.sporeBurst, e);
@@ -986,7 +986,16 @@ class Combat {
     }
   }
 
-  renderEnemies() { for (const e of this.enemies) this.renderEntity(e); }
+  renderEnemies() { for (const e of this.enemies) this.renderEntity(e); this.fitEnemies(); }
+  // Shrink the enemies a little when many are on screen, so they always fit.
+  fitEnemies() {
+    const side = this.root && $('.enemy-side', this.root);
+    if (!side) return;
+    const shown = this.enemies.filter((e) => e.el && !e.el.classList.contains('gone'));
+    const want = shown.reduce((s, e) => s + Math.max(1, (e.def.scale || 1)) * 0.95, 0);
+    const room = side.clientWidth / Math.max(1, parseFloat(getComputedStyle(this.root).getPropertyValue('--base')) || 158);
+    side.style.setProperty('--squeeze', Math.min(1, room / Math.max(want, 0.01)).toFixed(3));
+  }
 
   render() {
     if (!this.root) return;

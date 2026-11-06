@@ -90,7 +90,7 @@ function showCharSelect() {
       <div class="char-stats"><span>❤️ ${ch.hp} HP</span><span data-tip="<b>${esc(R.name)}</b><br>${esc(R.desc)}">${R.icon} ${esc(R.name)}</span>
         <span>🏆 ${p.wins[id] || 0} wins</span></div>
       <p class="char-bio">${esc(ch.bio)}</p>
-      <ul class="char-mech">${ch.mechanics.map(([i, n, d]) => `<li><span>${i}</span><div><b>${n}</b> ${esc(d)}</div></li>`).join('')}</ul>`);
+      <ul class="char-mech">${ch.mechanics.map(([i, n, d]) => `<li><span>${i}</span><div><b>${n}</b> ${kwText(d)}</div></li>`).join('')}</ul>`);
     card.style.setProperty('--cc', ch.color);
     if (locked) {
       card.appendChild(el('div', 'lock-note', `🔒 Reach <b>Lantern Level ${ch.unlock}</b> to unlock.<br><small>Finish any run to earn experience.</small>`));
@@ -276,14 +276,14 @@ function showFerryman() {
     { label: 'Lighten your load', desc: 'Remove a card from your deck.',
       act: async () => { if (await chooseRemoveCard()) done(); } },
     { label: 'Ferryman\'s blessing', desc: 'Raise your Max HP by 10.',
-      act: async () => { run.maxHp += 10; run.hp += 10; toast('Max HP +10'); done(); } },
+      act: async () => { gainMaxHp(10); toast('Max HP +10'); done(); } },
     { label: 'A dangerous bargain', desc: 'Lose 10 HP. Choose 1 of 3 rare cards.',
       act: async () => { loseHp(10); await offerCards(pickN(cardPool('rare'), 3).map((id) => makeCard(id)), 'Choose a rare card'); done(); } },
     { label: 'A token from the deep', desc: 'Obtain a random common Curio.',
       act: async () => { obtainRelic(pick(relicPool('common'))); done(); } },
   ];
   pickN(choices.slice(0, 4), 3).concat(choices[4]).forEach((c) => {
-    const b = el('button', 'event-option', `<b>${c.label}</b><span>${c.desc}</span>`);
+    const b = el('button', 'event-option', `<b>${c.label}</b><span>${kwText(c.desc)}</span>`);
     b.onclick = c.act;
     opts.appendChild(b);
   });
@@ -337,7 +337,7 @@ function showBossReward() {
   const list = $('.boss-relics', page);
   pool.forEach((id) => {
     const R = RELICS[id];
-    const b = el('button', 'boss-relic', `<span class="br-icon">${R.icon}</span><b>${esc(R.name)}</b><span>${esc(R.desc)}</span>`);
+    const b = el('button', 'boss-relic', `<span class="br-icon">${R.icon}</span><b>${esc(R.name)}</b><span>${kwText(R.desc)}</span>`);
     b.onclick = () => { obtainRelic(id); nextAct(); };
     list.appendChild(b);
   });
@@ -401,7 +401,7 @@ function showEvent(id) {
   const opts = $('.event-options', page);
   let busy = false;
   ev.options(run).forEach((o) => {
-    const b = el('button', 'event-option', `<b>${esc(o.label)}</b><span>${esc(o.desc)}</span>`);
+    const b = el('button', 'event-option', `<b>${esc(o.label)}</b><span>${kwText(o.desc)}</span>`);
     b.disabled = !!o.disabled;
     b.onclick = async () => {
       if (busy) return;
@@ -631,7 +631,7 @@ function showLibrary() {
         Object.keys(RELICS).filter((k) => RELICS[k].rarity === rar).forEach((k) => {
           const R = RELICS[k];
           const lk = !isUnlocked(R) ? ` <small>🔒 Lantern Level ${R.unlock}</small>` : '';
-          grid.appendChild(el('div', 'info-item r-' + rar + (lk ? ' locked' : ''), `<span class="big-icon">${R.icon}</span><div><b>${esc(R.name)}</b> <small>${rar}${R.char ? " · " + CHARACTERS[R.char].short + " only" : ""}</small>${lk}<p>${esc(R.desc)}</p></div>`));
+          grid.appendChild(el('div', 'info-item r-' + rar + (lk ? ' locked' : ''), `<span class="big-icon">${R.icon}</span><div><b>${esc(R.name)}</b> <small>${rar}${R.char ? " · " + CHARACTERS[R.char].short + " only" : ""}</small>${lk}<p>${kwText(R.desc)}</p></div>`));
         });
       }
       body.appendChild(grid);
@@ -639,7 +639,7 @@ function showLibrary() {
       const grid = el('div', 'info-grid');
       Object.keys(POTIONS).forEach((k) => {
         const P = POTIONS[k];
-        grid.appendChild(el('div', 'info-item', `<span class="big-icon" style="filter:hue-rotate(${P.hue}deg)">${P.icon}</span><div><b>${esc(P.name)}</b>${P.char ? ` <small>${CHARACTERS[P.char].short} only</small>` : ""}<p>${esc(P.desc)}</p></div>`));
+        grid.appendChild(el('div', 'info-item', `<span class="big-icon" style="filter:hue-rotate(${P.hue}deg)">${P.icon}</span><div><b>${esc(P.name)}</b>${P.char ? ` <small>${CHARACTERS[P.char].short} only</small>` : ""}<p>${kwText(P.desc)}</p></div>`));
       });
       body.appendChild(grid);
     } else {

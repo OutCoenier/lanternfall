@@ -38,7 +38,7 @@ const RELICS = {
   buckler: { name: 'Brass Buckler', icon: '🛡️', rarity: 'common', desc: 'Start each combat with 10 Ward.',
     onCombatStart(c) { c.gainBlock(c.player, 10, false); } },
   stew: { name: 'Hearty Stew', icon: '🍲', rarity: 'common', desc: 'Upon pickup, raise your Max HP by 10.',
-    onPickup(run) { run.maxHp += 10; run.hp += 10; } },
+    onPickup() { gainMaxHp(10); } },
   dice: { name: 'Bone Dice', icon: '🎲', rarity: 'common', desc: 'At the start of each combat, draw 2 additional cards.' },
   shard: { name: 'Shard of Dawn', icon: '🔆', rarity: 'common', desc: 'Your first Attack each combat deals 8 additional damage.',
     onCombatStart(c) { c.selfApply('primed', 8); } },

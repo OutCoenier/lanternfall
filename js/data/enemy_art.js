@@ -70,8 +70,8 @@ const ENEMY_ART = {
     <ellipse cx="66" cy="40" rx="14" ry="8" fill="#e8a0c8" opacity=".35"/>
     <ellipse cx="60" cy="74" rx="13" ry="11" fill="url(#mbEye)" class="pt-eye"/><ellipse cx="98" cy="74" rx="13" ry="11" fill="url(#mbEye)" class="pt-eye"/>
     <rect x="57" y="66" width="6" height="16" rx="3" fill="#1a0408"/><rect x="95" y="66" width="6" height="16" rx="3" fill="#1a0408"/>
-    <path d="M44 22 L50 4 L58 20 L66 0 L74 18 L82 2 L88 18 L98 4 L102 22" fill="#e86a5a" stroke="#8a2a2a" stroke-width="1.5" stroke-linejoin="round"/>
-    <circle cx="66" cy="8" r="2.5" fill="#fff6c8"/><circle cx="82" cy="10" r="2.5" fill="#9ef0ff"/>
+    <g transform="translate(7 0)"><path d="M44 22 L50 4 L58 20 L66 0 L74 18 L82 2 L88 18 L98 4 L102 22" fill="#e86a5a" stroke="#8a2a2a" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="66" cy="8" r="2.5" fill="#fff6c8"/><circle cx="82" cy="10" r="2.5" fill="#9ef0ff"/></g>
   </svg>`,
 
   // ---------------- Act II ----------------
