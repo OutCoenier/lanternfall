@@ -73,7 +73,8 @@ function enterNode(n) {
   else if (n.type === 'elite') pending.encounter = pick(ACTS[run.act - 1].elites);
   else if (n.type === 'boss') pending.encounter = run.bossEncounter;
   else if (n.type === 'event') {
-    if (chance(0.12)) pending = { type: 'fight', encounter: pickEncounter() };
+    const myst = ACTS[run.act - 1].mystery;
+    if (myst && myst.length && chance(0.15)) pending = { type: 'mystery', encounter: pick(myst) };
     else pending.eventId = pickEvent();
   }
   run.pending = pending;
@@ -84,7 +85,7 @@ function enterNode(n) {
 function resumePending(p) {
   renderTopbar(true);
   switch (p.type) {
-    case 'fight': case 'elite': case 'boss': case 'mimic': return startCombat(p.encounter, p.type === 'mimic' ? 'elite' : p.type);
+    case 'fight': case 'elite': case 'boss': case 'mimic': case 'mystery': return startCombat(p.encounter, p.type === 'mimic' ? 'elite' : p.type);
     case 'event': return showEvent(p.eventId);
     case 'shop': return showShop();
     case 'rest': return showRest();
@@ -103,7 +104,7 @@ function completeNode() {
 
 function pickEncounter() {
   const run = Game.run, act = ACTS[run.act - 1];
-  const easyCount = run.act === 1 ? 3 : 2;
+  const easyCount = 3;
   const pool = run.fightsThisAct < easyCount ? act.easy : act.hard;
   run.fightsThisAct++;
   let enc;
@@ -134,7 +135,7 @@ function startCombat(encounter, kind) {
 function combatWon(kind) {
   const run = Game.run;
   if (kind === 'elite') run.stats.elites++;
-  let gold = kind === 'boss' ? rand(95, 105) : kind === 'elite' ? rand(25, 35) : rand(10, 20);
+  let gold = kind === 'boss' ? rand(95, 105) : kind === 'elite' ? rand(25, 35) : kind === 'mystery' ? rand(22, 32) : rand(10, 20);
   if (hasRelic('idol')) gold = Math.round(gold * 1.5);
   if (depthOn(7)) gold = Math.round(gold * 0.75);
   const rewards = { gold, cards: generateCardReward(kind) };
@@ -152,7 +153,7 @@ function combatWon(kind) {
   }
   run.pending = null;
   saveRun();
-  showRewards(rewards, () => completeNode(), kind === 'elite' ? 'Elite Defeated!' : 'Victory!');
+  showRewards(rewards, () => completeNode(), kind === 'elite' ? 'Elite Defeated!' : kind === 'mystery' ? 'Ambush Survived!' : 'Victory!');
 }
 
 function generateCardReward(kind) {
@@ -161,7 +162,7 @@ function generateCardReward(kind) {
   const out = [], used = new Set();
   for (let i = 0; i < n; i++) {
     const rw = hasRelic('quill') ? 2 : 1;
-    let rarity = kind === 'boss' ? 'rare' : weighted(kind === 'elite'
+    let rarity = kind === 'boss' ? 'rare' : weighted(kind === 'elite' || kind === 'mystery'
       ? [['common', 50], ['uncommon', 40], ['rare', 10 * rw]] : [['common', 60], ['uncommon', 36], ['rare', 4 * rw]]);
     let pool = cardPool(rarity).filter((id) => !used.has(id));
     if (!pool.length) pool = cardPool('common').filter((id) => !used.has(id));

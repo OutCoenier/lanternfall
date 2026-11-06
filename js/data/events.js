@@ -58,7 +58,7 @@ const EVENTS = {
         action: async () => { gainGold(120 + run.act * 30); run.maxHp -= 8; run.hp = Math.min(run.hp, run.maxHp); return 'The bones rattle as you grab it. A chill settles into your bones.'; } },
       { label: 'Leave', desc: 'Nothing happens.', action: async () => 'You leave the skull to its rest.' },
     ] },
-  mimicChest: { name: 'A Suspicious Chest', art: '🧰', acts: [1, 2, 3],
+  mimicChest: { name: 'A Suspicious Chest', art: '🧰', acts: [1],
     text: 'A lonely chest sits in the middle of the corridor. Its lid seems to rise and fall... slowly... like breathing.',
     options: () => [
       { label: 'Open it', desc: 'Could be treasure. Could be teeth.',

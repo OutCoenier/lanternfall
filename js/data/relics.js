@@ -15,8 +15,8 @@ const RELICS = {
     onCombatStart(c) { c.addCard('moonShard', 'hand', 2); } },
 
   satchel: { name: "Brewer's Satchel", icon: '👜', rarity: 'starter', char: 'alchemist',
-    desc: 'At the start of each elite and boss combat, brew a random Tonic (if you have an empty slot).',
-    onCombatStart(c) { if (c.kind !== 'fight') c.brew(1); } },
+    desc: 'At the start of each elite and boss combat, or any combat where you have no Tonics, brew a random Tonic.',
+    onCombatStart(c) { if (c.kind === 'elite' || c.kind === 'boss' || !c.run.potions.some(Boolean)) c.brew(1); } },
 
   locket: { name: 'Moonlit Locket', icon: '💍', rarity: 'starter', char: 'cassandra',
     desc: 'At the start of each combat, Summon 8.',

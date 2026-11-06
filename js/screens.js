@@ -645,8 +645,7 @@ function showLibrary() {
     } else {
       ACTS.forEach((act, ai) => {
         body.appendChild(el('h2', 'act-title', `${act.subtitle}: ${act.name}`));
-        const ids = [...new Set([...act.easy, ...act.hard, ...act.elites, ...act.bosses].flat())];
-        if (ai === 1) ids.push('sporeling');
+        const ids = actEnemyIds(ai);
         const grid = el('div', 'info-grid');
         ids.forEach((id) => {
           const E = ENEMIES[id];

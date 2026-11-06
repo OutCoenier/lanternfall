@@ -127,8 +127,8 @@ function princessSVG() {
   return `<svg class="portrait-svg" viewBox="0 0 140 160" aria-hidden="true">
   <defs>
     <radialGradient id="ccAura" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#7a2aa8" stop-opacity=".45"/><stop offset=".6" stop-color="#3a0a5a" stop-opacity=".18"/><stop offset="1" stop-color="#1a0028" stop-opacity="0"/></radialGradient>
-    <linearGradient id="ccDress" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2c1838"/><stop offset=".55" stop-color="#140a1c"/><stop offset="1" stop-color="#05020a"/></linearGradient>
-    <linearGradient id="ccSilk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a1424"/><stop offset="1" stop-color="#a0243c"/></linearGradient>
+    <linearGradient id="ccDress" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#242226"/><stop offset=".55" stop-color="#0e0d10"/><stop offset="1" stop-color="#030303"/></linearGradient>
+    <linearGradient id="ccSilk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0a090c"/><stop offset="1" stop-color="#1e1c22"/></linearGradient>
     <linearGradient id="ccSkin" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ecc8b0"/><stop offset="1" stop-color="#fbe2d2"/></linearGradient>
     <linearGradient id="ccGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2b3"/><stop offset=".55" stop-color="#e8b443"/><stop offset="1" stop-color="#a8701c"/></linearGradient>
     <linearGradient id="ccHair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c1622"/><stop offset="1" stop-color="#050307"/></linearGradient>
@@ -140,16 +140,16 @@ function princessSVG() {
   <!-- gown -->
   <path d="M50 70 Q40 110 22 154 L112 154 Q94 110 84 70 Z" fill="url(#ccDress)"/>
   <path d="M67 74 L52 154 L82 154 Z" fill="url(#ccSilk)" opacity=".9"/>
-  <path d="M22 154 Q40 146 56 154 Q72 146 88 154 Q100 146 112 154" stroke="#7a4a9a" stroke-width="2" fill="none"/>
-  <path d="M30 140 Q67 128 104 140" stroke="#5a2a7a" stroke-width="1.4" fill="none" opacity=".8"/>
+  <path d="M22 154 Q40 146 56 154 Q72 146 88 154 Q100 146 112 154" stroke="#3a383e" stroke-width="2" fill="none"/>
+  <path d="M30 140 Q67 128 104 140" stroke="#2a282e" stroke-width="1.4" fill="none" opacity=".8"/>
   <!-- corset with lacing -->
-  <path d="M54 66 Q67 72 80 66 L78 96 Q67 100 56 96 Z" fill="#1a0c24" stroke="#5a2a7a" stroke-width="1.2"/>
-  <path d="M62 72 L72 78 M72 72 L62 78 M62 80 L72 86 M72 80 L62 86 M62 88 L72 94 M72 88 L62 94" stroke="#c0405a" stroke-width="1"/>
+  <path d="M54 66 Q67 72 80 66 L78 96 Q67 100 56 96 Z" fill="#0c0b0e" stroke="#2e2c32" stroke-width="1.2"/>
+  <path d="M62 72 L72 78 M72 72 L62 78 M62 80 L72 86 M72 80 L62 86 M62 88 L72 94 M72 88 L62 94" stroke="#3a383e" stroke-width="1"/>
   <!-- high gothic collar -->
-  <path d="M50 64 L56 50 L67 60 L78 50 L84 64 Q67 70 50 64 Z" fill="#100818" stroke="#7a4a9a" stroke-width="1.2"/>
+  <path d="M50 64 L56 50 L67 60 L78 50 L84 64 Q67 70 50 64 Z" fill="#08080a" stroke="#2e2c32" stroke-width="1.2"/>
   <!-- arms -->
-  <path d="M52 68 Q40 86 42 104 L48 104 Q48 88 58 74 Z" fill="#100818"/>
-  <path d="M82 68 Q96 78 100 92 L95 96 Q90 84 78 76 Z" fill="#100818"/>
+  <path d="M52 68 Q40 86 42 104 L48 104 Q48 88 58 74 Z" fill="#0a0a0c"/>
+  <path d="M82 68 Q96 78 100 92 L95 96 Q90 84 78 76 Z" fill="#0a0a0c"/>
   <circle cx="45" cy="106" r="3.6" fill="url(#ccSkin)"/>
   <circle cx="98" cy="96" r="3.6" fill="url(#ccSkin)"/>
   <!-- black rose in her hand -->

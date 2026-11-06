@@ -414,6 +414,7 @@ class Combat {
     if (!e.minion && !this.enemies.some((x) => !x.dead && !x.minion)) {
       for (const m of this.alive()) { m.dead = true; if (m.el) m.el.classList.add('dead', 'fled'); this.float(m, 'Flees!', 'movename'); }
     }
+    for (const a of this.alive()) if (a.def.onAllyDeath) a.def.onAllyDeath(this, a, e);
     if (!this.alive().length) { this.over = true; this.result = 'victory'; return; }
     for (const r of this.run.relics) if (RELICS[r.id].onEnemyDeath) await RELICS[r.id].onEnemyDeath(this, r, e);
   }
