@@ -544,9 +544,10 @@ class Combat {
       if (p.statuses.echoingToll && this.turnCounts.attack <= p.statuses.echoingToll) times++;
     }
     for (let k = 0; k < times && !this.over; k++) {
-      let t = target;
-      if (d.target === 'enemy' && (!t || t.dead)) t = pick(this.alive());
-      if (d.target === 'enemy' && !t) break;
+      const t = target;
+      // A repeated card (Twin Flame, Echoing Toll...) only ever hits the enemy you chose.
+      // If that enemy is already dead, the extra copy is simply lost.
+      if (d.target === 'enemy' && (!t || t.dead)) break;
       if (k > 0) { this.float(this.player, 'Again!', 'buff'); await sleep(300); }
       await d.play(this, v, t, card);
     }
