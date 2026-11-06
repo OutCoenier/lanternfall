@@ -18,7 +18,13 @@ body, .card-cost, .energy-orb span, .hptext, .price, .num, .stats b, .h-score b,
 /* Keyword explanations inside tooltips */
 .tip-kw { margin-top: 6px; padding-top: 6px; border-top: 1px solid #ffffff22; font-size: .92em; color: #d9cbb4; }
 .kw[data-tip] { cursor: help; border-bottom: 1px dotted #ffd76a88; }
-.up-toggle { display: inline-flex; margin: 0 auto 6px; font-size: 1rem; cursor: pointer; }
+.up-toggle { display: inline-flex; align-items: center; gap: 10px; margin: 4px auto 12px; padding: 8px 18px; font-family: 'Grenze Gotisch', serif; font-size: 1.2rem;
+  color: #d8f8d0; background: linear-gradient(#24402a, #142418); border: 2px solid #5fb96a; border-radius: 10px; cursor: pointer; box-shadow: 0 0 14px #5fb96a44; }
+.up-toggle:hover { filter: brightness(1.2); }
+.up-toggle small { font-family: 'Alegreya Sans', sans-serif; opacity: .7; font-size: .8em; }
+.up-toggle .up-box { width: 22px; height: 22px; border: 2px solid #9fe8a8; border-radius: 5px; display: inline-grid; place-items: center; font-size: 1rem; background: #0006; }
+.up-toggle.on { background: linear-gradient(#3e7a4a, #1f4a2a); border-color: #9fe8a8; box-shadow: 0 0 22px #7dff9a77; }
+.choose { display: flex; flex-direction: column; align-items: center; }
 .card.preview .card-name { color: var(--green); }
 
 @media (min-height: 561px) {

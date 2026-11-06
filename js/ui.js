@@ -235,7 +235,9 @@ function viewCards(cards, title) {
 // A 'Show upgrades' switch: swaps every card in the grid to its upgraded version and back.
 let showUpgrades = false;
 function upgradeToggle(grid, cards) {
-  const lab = el('label', 'chip toggle up-toggle', `<input type="checkbox" ${showUpgrades ? 'checked' : ''}> Show upgrades`);
+  const lab = el('button', 'up-toggle' + (showUpgrades ? ' on' : ''));
+  const label = () => { lab.innerHTML = `<span class="up-box">${showUpgrades ? '✓' : ''}</span> ${showUpgrades ? 'Showing upgraded cards' : 'Show upgraded cards'} <small>(U)</small>`; lab.classList.toggle('on', showUpgrades); };
+  label();
   const apply = () => {
     [...grid.querySelectorAll(':scope > .card-slot')].forEach((slot, i) => {
       const c = cards[i]; if (!c) return;
@@ -245,7 +247,8 @@ function upgradeToggle(grid, cards) {
       const old = slot.querySelector('.card'); if (old) slot.replaceChild(n, old);
     });
   };
-  $('input', lab).onchange = (e) => { showUpgrades = e.target.checked; apply(); };
+  lab.onclick = () => { showUpgrades = !showUpgrades; label(); apply(); };
+  lab.dataset.tip = 'Preview what every card here looks like once upgraded. Shortcut: U';
   if (showUpgrades) setTimeout(apply);
   return lab;
 }
@@ -331,3 +334,11 @@ function potionMenu(slot, anchor) {
     if (!pop.contains(ev.target)) { pop.remove(); document.removeEventListener('mousedown', h); }
   }), 0);
 }
+
+// U toggles the upgrade preview in any open card pop-up
+document.addEventListener('keydown', (ev) => {
+  if ((ev.key === 'u' || ev.key === 'U') && !/INPUT|TEXTAREA/.test(ev.target.tagName)) {
+    const b = document.querySelector('#overlay.show .up-toggle');
+    if (b) b.click();
+  }
+});
