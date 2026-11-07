@@ -2,8 +2,7 @@
 // Every icon in the game is drawn here (no emoji). Each icon is a 64x64 drawing.
 //   icon('flame')        -> inline SVG for HTML
 //   iconMarkup('flame')  -> the raw drawing (used inside card pictures)
-// Any emoji that appears anywhere in the page is automatically swapped for its icon
-// (see EMOJI_ICON at the bottom), so the data files can keep using emoji as short names.
+// Text anywhere in the game can say :iconName: (like ':flame:') and it is drawn as that icon.
 'use strict';
 
 const ICON_DEFS = `
@@ -245,57 +244,43 @@ return {
   ogre: `<path d="M14 22 L8 6 L22 16 M50 22 L56 6 L42 16" fill="#f6f1ea" ${O}/><circle cx="32" cy="36" r="24" fill="url(#igRed)" ${O}/><path d="M18 30 L28 34 M46 30 L36 34" stroke="#1c1220" stroke-width="4"/><circle cx="24" cy="38" r="3" fill="#ffe680"/><circle cx="40" cy="38" r="3" fill="#ffe680"/><path d="M20 48 L44 48 M24 48 L26 54 M40 48 L38 54" stroke="#1c1220" stroke-width="3"/>`,
   troll: `<circle cx="32" cy="34" r="24" fill="url(#igGreen)" ${O}/><ellipse cx="32" cy="38" rx="6" ry="8" fill="#5aa83a" ${O}/><circle cx="22" cy="28" r="3" fill="#1c1220"/><circle cx="42" cy="28" r="3" fill="#1c1220"/><path d="M20 50 Q32 44 44 50 M24 50 L26 44 M40 50 L38 44" stroke="#1c1220" stroke-width="3" fill="none"/>`,
   zombie: `<circle cx="32" cy="32" r="24" fill="#8ab89a" ${O}/><circle cx="23" cy="28" r="5" fill="#f6f1ea" ${O}/><circle cx="41" cy="30" r="3.5" fill="#f6f1ea" ${O}/><path d="M22 46 L42 44" stroke="#1c1220" stroke-width="3"/><path d="M26 44 L26 48 M32 44 L32 48 M38 44 L38 47" stroke="#1c1220" stroke-width="2"/><path d="M44 14 L50 22 L46 22" stroke="#4a6a4a" stroke-width="2" fill="none"/>`,
+  pencil: `<path d="M44 6 L58 20 L22 56 L6 58 L8 42 Z" fill="url(#igGold)" ${O}/><path d="M38 12 L52 26" stroke="#1c1220" stroke-width="2.6"/><path d="M44 6 L58 20 L52 26 L38 12 Z" fill="#e2333d" ${O}/><path d="M8 42 L22 56 L6 58 Z" fill="#f3e2b8" ${O}/><path d="M6 58 L9 50 L14 55 Z" fill="#1c1220"/>`,
+  eraser: `<path d="M36 8 L58 30 L32 56 L16 56 L6 46 Z" fill="#ff9fc4" ${O}/><path d="M22 22 L44 44 L32 56 L16 56 L6 46 Z" fill="#f6f1ea" ${O}/><path d="M30 14 L50 34" stroke="#fff" stroke-width="3" opacity=".6" stroke-linecap="round"/><path d="M34 58 L58 58" stroke="#ecdfc8" stroke-width="3" stroke-linecap="round"/>`,
+  undo: `<path d="M14 28 L38 28 C50 28 56 36 56 44 C56 52 50 58 40 58 L30 58" fill="none" stroke="#1c1220" stroke-width="11" stroke-linecap="round"/><path d="M14 28 L38 28 C50 28 56 36 56 44 C56 52 50 58 40 58 L30 58" fill="none" stroke="url(#igGold)" stroke-width="6" stroke-linecap="round"/><path d="M22 14 L6 28 L22 42 Z" fill="url(#igGold)" ${O}/>`,
 };
 })();
 
-// ---------- which emoji becomes which icon ----------
-const EMOJI_ICON = {
-  '🔥': 'flame', '♨': 'flame', '❤‍🔥': 'heartFlame', '♊': 'twinFlame', '🏮': 'lantern', '🕯': 'candle', '🪔': 'oilLamp',
-  '☀': 'sun', '🌞': 'sun', '🔆': 'sun', '🌅': 'sunrise', '🌄': 'sunrise', '🌟': 'star', '✨': 'sparkles', '💫': 'sparkles',
-  '💥': 'burst', '🎇': 'burst', '🎆': 'burst', '📸': 'burst', '🌠': 'shootingStar', '☄': 'shootingStar', '⚡': 'bolt', '💡': 'bulb', '🔦': 'torch',
-  '❤': 'heart', '💚': 'heartGreen', '🖤': 'heartDark', '🛡': 'shield', '🗡': 'dagger', '🔪': 'dagger', '⚔': 'swords', '🤺': 'fencer', '🪓': 'axe',
-  '🔨': 'hammer', '⚒': 'hammer', '💪': 'might', '✋': 'hand', '💀': 'skull', '😱': 'scream', '🩸': 'bloodDrop', '💧': 'drop', '🫧': 'bubbles',
-  '👁': 'eye', '🧿': 'nazar', '⬆': 'arrowUp', '⏬': 'arrowDown', '🔻': 'triangleDown', '➗': 'divide', '✚': 'plus', '✓': 'check', '❓': 'question', '❔': 'question',
-  '🌀': 'swirl', '🌪': 'tornado', '🥚': 'egg', '🔴': 'orbRed', '🟢': 'orbGreen', '🟤': 'orbBrown', '🔸': 'diamondSmall',
-  '🌙': 'moon', '🌘': 'moon', '🌒': 'moon', '🌗': 'moonHalf', '🌕': 'fullMoon', '🌝': 'fullMoon', '🌑': 'newMoon', '🌌': 'galaxy',
-  '☁': 'cloud', '🌧': 'rainCloud', '💨': 'wind', '🌬': 'wind', '🌊': 'wave', '🌋': 'volcano', '⛲': 'fountain', '🕳': 'hole',
-  '🧪': 'flask', '⚗': 'flask', '🍾': 'bottle', '🍷': 'goblet', '🫙': 'jar', '🍯': 'jar', '🏺': 'urn', '⚱': 'urn', '🫖': 'teapot', '🫗': 'pour',
-  '🛢': 'drum', '💊': 'pill', '💉': 'syringe', '🧫': 'petri', '🔬': 'microscope', '🔍': 'magnifier', '🔮': 'crystalBall', '☢': 'radioactive', '☿': 'mercury',
-  '🪙': 'coin', '💰': 'moneybag', '💎': 'gem', '💍': 'ring', '👑': 'crown', '🗝': 'key', '🔒': 'lock', '🔓': 'unlock', '🧰': 'chest', '🏆': 'trophy',
-  '🎒': 'bag', '👜': 'bag', '👛': 'bag', '🧳': 'bag', '🧺': 'basket', '📦': 'box', '📜': 'scroll', '📖': 'book', '📅': 'calendar', '📋': 'clipboard',
-  '🃏': 'cards', '🂠': 'cardBack', '🗺': 'map', '⚙': 'gear', '🪚': 'saw', '✂': 'scissors', '🪡': 'needle', '🔩': 'bolt2', '⛓': 'chain', '🪢': 'knot',
-  '🧭': 'compass', '🪞': 'mirror', '🪩': 'mirror', '🪭': 'fan', '🪗': 'accordion', '🔱': 'trident', '📿': 'beads', '🧤': 'gloves', '🧥': 'coat', '🧶': 'yarn',
-  '🍄': 'mushroom', '🌿': 'herb', '🌱': 'herb', '🌾': 'herb', '🌹': 'rose', '🥀': 'wilted', '🌵': 'cactus', '🪸': 'coral', '🪶': 'feather', '🪽': 'wing',
-  '🪵': 'log', '🪨': 'rock', '🥌': 'curlingStone', '🗿': 'moai', '🧊': 'ice', '🍞': 'bread', '🍲': 'stew', '🥣': 'bowl', '🧂': 'salt',
-  '🏰': 'castle', '🗼': 'lighthouse', '⛩': 'shrine', '🛒': 'stall', '🛶': 'boat', '📱': 'phone', '🗑': 'trash', '🔋': 'battery', '⛽': 'fuel',
-  '☰': 'menu', '🔊': 'speaker', '🔈': 'speakerLow', '🔇': 'speakerOff', '🔔': 'bell', '🔕': 'bellOff', '⌛': 'hourglass', '⏳': 'hourglass', '⏱': 'stopwatch',
-  '🎯': 'target', '🎲': 'dice', '🎭': 'mask', '🎵': 'note', '🎼': 'note', '♪': 'note', '♫': 'note', '♩': 'note', '🎐': 'windChime', '🔯': 'sigil', '🔰': 'chevronShield',
-  '♻': 'recycle', '🔄': 'recycle', '😈': 'devil', '😡': 'angry', '😴': 'sleep', '👤': 'silhouette', '👻': 'ghost', '💃': 'dancer', '👣': 'footprints', '🩰': 'shoes',
-  '🧙': 'mage', '🧙‍♂': 'mage', '🦉': 'owl', '🦋': 'butterfly', '🦷': 'tooth', '🐚': 'shell', '🦅': 'eagle', '🪱': 'worm', '🐛': 'worm', '🐍': 'snake',
-  '🐙': 'octopus', '🦀': 'crab', '🐉': 'dragon', '🐺': 'wolf', '🦔': 'hedgehog', '🦗': 'cricket', '🪲': 'beetle', '🦠': 'microbe', '💣': 'bomb', '⚖': 'scales', '🧨': 'firecracker', '👹': 'ogre', '🧌': 'troll', '🧟': 'zombie',
-};
-
-function iconName(emoji) { return EMOJI_ICON[String(emoji).replace(/️/g, '')] || null; }
+// ---------- icon references ----------
+// Text anywhere in the game can contain :iconName: (for example ':flame:'); it is shown as that icon.
+const ICON_TOKEN_RE = /:([a-zA-Z][a-zA-Z0-9]*):/g;
+function iconName(ref) { const m = /^:([a-zA-Z][a-zA-Z0-9]*):$/.exec(String(ref).trim()); return m && ICONS[m[1]] ? m[1] : null; }
 function iconMarkup(name) { return ICONS[name] || ICONS.rune; }
 function icon(name, cls = '') { return `<svg class="ico ${cls}" viewBox="0 0 64 64" aria-hidden="true"><use href="#ic-${ICONS[name] ? name : 'rune'}"/></svg>`; }
 
-// ---------- swap every emoji in the page for its icon ----------
-const EMOJI_RE = /(?:\p{Extended_Pictographic}|[☰✓✚♪♫♩])(?:️|‍(?:\p{Extended_Pictographic}|[♂♀])️?)*/gu;
+// ---------- turn icon references (and any stray emoji) in the page into drawn icons ----------
+const EMOJI_RE = /(?:\p{Extended_Pictographic}|[\u2630\u2713\u271A\u266A\u266B\u2669])(?:\uFE0F|\u200D(?:\p{Extended_Pictographic}|[\u2640\u2642])\uFE0F?)*/gu;
 const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'TITLE']);
+function hasIconText(t) {
+  ICON_TOKEN_RE.lastIndex = 0; EMOJI_RE.lastIndex = 0;
+  if (EMOJI_RE.test(t)) return true;
+  for (const m of t.matchAll(ICON_TOKEN_RE)) if (ICONS[m[1]]) return true;
+  return false;
+}
 function swapEmojiIn(root) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode(n) {
       const p = n.parentNode;
       if (!p || SKIP_TAGS.has(p.nodeName) || p.namespaceURI === 'http://www.w3.org/2000/svg') return NodeFilter.FILTER_REJECT;
-      EMOJI_RE.lastIndex = 0;
-      return EMOJI_RE.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      return hasIconText(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
     },
   });
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
   for (const n of nodes) {
     const tmp = document.createElement('span');
-    tmp.innerHTML = esc(n.nodeValue).replace(EMOJI_RE, (e) => icon(iconName(e) || 'rune'));
+    tmp.innerHTML = esc(n.nodeValue)
+      .replace(ICON_TOKEN_RE, (all, name) => (ICONS[name] ? icon(name) : all))
+      .replace(EMOJI_RE, () => icon('rune'));
     const frag = document.createDocumentFragment();
     while (tmp.firstChild) frag.appendChild(tmp.firstChild);
     n.parentNode.replaceChild(frag, n);

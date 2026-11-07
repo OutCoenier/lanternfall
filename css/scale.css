@@ -118,3 +118,62 @@ body, .card-cost, .energy-orb span, .hptext, .price, .num, .stats b, .h-score b,
 .duo-titles .t-light { color: #ffe9a0; text-shadow: 0 0 10px #ffb347; }
 .duo-titles .t-dark::before, .duo-titles .t-dark::after, .duo-titles .t-light::before, .duo-titles .t-light::after { content: ""; width: 26px; height: 1px; background: linear-gradient(90deg, transparent, currentColor, transparent); }
 .duo-titles .t-and { font-style: italic; font-size: .85rem; color: #a99ab8; margin: 1px 0; }
+
+/* ---------- Journal: run details ---------- */
+.history-row.clickable { cursor: pointer; transition: transform .15s, border-color .15s; }
+.history-row.clickable:hover { transform: translateX(4px); border-color: #ffd76a; }
+.h-more { color: #ffd76a; font-size: .9rem; margin-left: 6px; white-space: nowrap; }
+.run-details { text-align: left; }
+.run-details h3 { color: #ffd76a; margin: 16px 0 6px; border-bottom: 1px solid #ffffff18; padding-bottom: 4px; }
+.rd-head { display: flex; gap: 18px; align-items: center; }
+.rd-head h2 { margin: 0; }
+.rd-head .sub { margin: 2px 0 8px; }
+.rd-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+.rd-stats span { background: #0006; border-radius: 8px; padding: 3px 10px; color: #c9b9a6; }
+.rd-stats b { color: #ffd76a; }
+.rd-curios { display: flex; gap: 8px; flex-wrap: wrap; font-size: 2rem; }
+.rd-curios .sub { font-size: 1rem; margin: 0; }
+.rd-deck .card-grid { justify-content: flex-start; padding-top: 6px; }
+.rd-deck .card-grid .card { --w: clamp(120px, 13vh, 150px); }
+.rd-acts { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+.rd-act { flex: 1 1 300px; min-width: 280px; background: #0005; border: 1px solid #ffffff14; border-radius: 12px; padding: 10px 12px; }
+.rd-act h4 { margin: 0 0 6px; color: #e8d8c0; font-family: 'Grenze Gotisch', serif; font-size: 1.2rem; }
+.mini-map { width: 100%; max-width: 300px; display: block; margin: 0 auto 8px; background: radial-gradient(ellipse at 50% 40%, #241c2c, #120e16); border-radius: 10px; }
+.rd-route { margin: 0; padding-left: 4px; list-style: none; max-height: 260px; overflow-y: auto; font-size: .95rem; }
+.rd-route li { display: flex; gap: 6px; align-items: baseline; padding: 2px 0; border-bottom: 1px solid #ffffff0a; }
+.rd-ico { width: 1.3em; display: inline-flex; justify-content: center; }
+
+/* ---------- Drawing on the map ---------- */
+.map-ink { position: absolute; inset: 0; pointer-events: none; z-index: 5; overflow: visible; }
+.map-ink path { fill: none; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; opacity: .92; filter: drop-shadow(0 0 2px #000c); }
+.map-inner.drawing { cursor: crosshair; }
+.map-inner.drawing.tool-erase { cursor: cell; }
+.map-inner.drawing .map-node, .map-inner.inking .map-node { pointer-events: none; }
+.map-inner.inking { cursor: crosshair; }
+.map-tools { position: absolute; left: 24px; top: 30px; z-index: 6; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: #0009; border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+.mt-btn { width: 50px; height: 50px; border-radius: 10px; border: 2px solid #5a4d66; background: #1b1621; display: grid; place-items: center; padding: 0; cursor: pointer; transition: transform .12s, border-color .12s; }
+.mt-btn:hover { transform: scale(1.08); border-color: #9a86b0; }
+.mt-btn .ico { width: 30px; height: 30px; }
+.mt-btn.on { border-color: #ffd76a; background: #2e2614; box-shadow: 0 0 12px #ffd76a66; }
+.mt-colors { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 2px 0; }
+.mt-color { width: 20px; height: 20px; border-radius: 50%; background: var(--c); border: 2px solid #000a; padding: 0; cursor: pointer; }
+.mt-color.on { outline: 2px solid #fff; outline-offset: 2px; }
+.map-overlay .map-tools { position: static; flex-direction: row; width: max-content; max-width: 100%; margin: 0 auto 8px; }
+.map-overlay .mt-btn { width: 42px; height: 42px; }
+.map-overlay .mt-colors { grid-template-columns: repeat(6, 1fr); padding: 0 6px; }
+@media (max-width: 700px) {
+  .map-tools { left: 6px; top: auto; bottom: 8px; padding: 6px; gap: 5px; }
+  .mt-btn { width: 38px; height: 38px; }
+  .mt-btn .ico { width: 22px; height: 22px; }
+}
+
+/* ---------- Account ---------- */
+.cloud-line { margin: 6px 0 12px; color: var(--muted); font-size: 1rem; }
+.cloud-line a { color: var(--amber); }
+.cloud-line .bad, .account-box .bad { color: #ff7a6a; }
+.account-box { max-width: 520px; }
+.account-form { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; text-align: left; }
+.account-form label { display: flex; flex-direction: column; gap: 4px; font-size: 1rem; color: var(--muted); }
+.account-form input { font: inherit; font-size: 1.05rem; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line); background: #0006; color: var(--text, #f4ead2); }
+.account-msg { min-height: 1.2em; margin: 0; font-size: .95rem; }

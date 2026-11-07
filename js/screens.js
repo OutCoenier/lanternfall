@@ -35,7 +35,7 @@ function levelBarHTML(xp = Profile.get().xp) {
   const next = LEVELS[lv + 1];
   const pct = next ? ((xp - LEVELS[lv].xp) / (next.xp - LEVELS[lv].xp)) * 100 : 100;
   return `<div class="level-bar" data-tip="${next ? `<b>Next unlock:</b> ${esc(next.unlock)}` : 'Everything is unlocked!'}">
-    <span class="lv">🏮 Lantern Level <b>${lv}</b></span>
+    <span class="lv">:lantern: Lantern Level <b>${lv}</b></span>
     <div class="lv-track"><div class="lv-fill" style="width:${pct.toFixed(1)}%"></div></div>
     <span class="lv-xp">${next ? `${xp} / ${next.xp} XP` : `${xp} XP · MAX`}</span></div>`;
 }
@@ -52,10 +52,11 @@ function showTitle() {
   const page = el('div', 'title-screen');
   const heroes = Object.keys(CHARACTERS).length;
   page.innerHTML = `${embers(40)}
-    <div class="title-lantern">🏮</div>
+    <div class="title-lantern">:lantern:</div>
     <h1 class="game-title">LANTERNFALL</h1>
     <p class="tagline">Carry the last light into the dark.</p>
     ${levelBarHTML()}
+    ${typeof cloudLineHTML === 'function' ? cloudLineHTML() : ''}
     <div class="menu"></div>
     <p class="credits">A deck-building descent · 3 Acts · ${heroes} Heroes · ${MAX_DEPTH} Depths</p>`;
   const menu = $('.menu', page);
@@ -63,11 +64,13 @@ function showTitle() {
   if (save) menu.appendChild(button(`Continue <small>${CHARACTERS[save.char || 'lampwright'].short} · Act ${save.act} · Floor ${save.floor}${save.depth ? ' · Depth ' + save.depth : ''}</small>`, continueRun, 'btn big primary'));
   menu.appendChild(button('New Run', () => { if (confirmAbandon()) showCharSelect(); }, 'btn big' + (save ? '' : ' primary')));
   const today = Profile.get().daily[todayKey()];
-  menu.appendChild(button(`📅 Daily Descent <small>${today ? `Today's best: ${today.score}` : 'Same map for everyone today'}</small>`, () => { if (confirmAbandon()) showDaily(); }, 'btn big'));
+  menu.appendChild(button(`:calendar: Daily Descent <small>${today ? `Today's best: ${today.score}` : 'Same map for everyone today'}</small>`, () => { if (confirmAbandon()) showDaily(); }, 'btn big'));
   const row = el('div', 'menu-row');
-  row.append(button('📖 Journal', showJournal, 'btn'), button('🃏 Library', showLibrary, 'btn'), button('❓ How to Play', showHelp, 'btn ghost'), button('⚙️ Sound', showSoundSettings, 'btn ghost'));
+  row.append(button(':book: Journal', showJournal, 'btn'), button(':cards: Library', showLibrary, 'btn'), button(':question: How to Play', showHelp, 'btn ghost'), button(':gear: Sound', showSoundSettings, 'btn ghost'));
+  if (Cloud.configured()) row.append(button(':cloud: Account', showAccount, 'btn ghost'));
   menu.appendChild(row);
   setScreen(page);
+  bindCloudLink();
   const p = Profile.get();
   const lv = Profile.level();
   if (lv > (p.seenLevel || 0)) { p.seenLevel = lv; Profile.save(); }
@@ -77,7 +80,7 @@ function showTitle() {
 function showCharSelect() {
   const page = el('div', 'char-select');
   page.innerHTML = `${embers(30)}<h1>Choose your hero</h1><p class="sub">Who will carry the light into the dark?</p><div class="char-row"></div>
-    <div class="seed-row"><label>🌱 Seed <input class="seed-input" maxlength="24" placeholder="optional: play a specific map"></label></div>`;
+    <div class="seed-row"><label>:herb: Seed <input class="seed-input" maxlength="24" placeholder="optional: play a specific map"></label></div>`;
   const row = $('.char-row', page);
   const p = Profile.get();
   for (const [id, ch] of Object.entries(CHARACTERS)) {
@@ -87,13 +90,13 @@ function showCharSelect() {
       <div class="char-portrait${ch.duo ? ' duo' : ''}" style="--cc:${ch.color}">${ch.portrait()}${ch.duo ? KNIGHT.portrait() : ''}</div>
       <h2>${esc(ch.name)}</h2>
       ${ch.titles ? `<div class="duo-titles"><span class="t-dark">${esc(ch.titles[0])}</span><span class="t-and">and her</span><span class="t-light">${esc(ch.titles[1])}</span></div>` : `<p class="char-tag">${esc(ch.tagline)}</p>`}
-      <div class="char-stats"><span>❤️ ${ch.hp} HP</span><span data-tip="<b>${esc(R.name)}</b><br>${esc(R.desc)}">${R.icon} ${esc(R.name)}</span>
-        <span>🏆 ${p.wins[id] || 0} wins</span></div>
+      <div class="char-stats"><span>:heart: ${ch.hp} HP</span><span data-tip="<b>${esc(R.name)}</b><br>${esc(R.desc)}">${R.icon} ${esc(R.name)}</span>
+        <span>:trophy: ${p.wins[id] || 0} wins</span></div>
       <p class="char-bio">${esc(ch.bio)}</p>
       <ul class="char-mech">${ch.mechanics.map(([i, n, d]) => `<li><span>${i}</span><div><b>${n}</b> ${kwText(d)}</div></li>`).join('')}</ul>`);
     card.style.setProperty('--cc', ch.color);
     if (locked) {
-      card.appendChild(el('div', 'lock-note', `🔒 Reach <b>Lantern Level ${ch.unlock}</b> to unlock.<br><small>Finish any run to earn experience.</small>`));
+      card.appendChild(el('div', 'lock-note', `:lock: Reach <b>Lantern Level ${ch.unlock}</b> to unlock.<br><small>Finish any run to earn experience.</small>`));
     } else {
       // Depth picker
       let depth = Math.min(p.lastDepth && p.lastDepth[id] != null ? p.lastDepth[id] : 0, Profile.maxDepth(id));
@@ -129,7 +132,7 @@ function showDaily() {
   const ch = CHARACTERS[hero];
   const best = Profile.get().daily[key];
   const box = el('div', 'menu-box daily-box');
-  box.innerHTML = `<h2>📅 Daily Descent</h2>
+  box.innerHTML = `<h2>:calendar: Daily Descent</h2>
     <p class="sub">${key}</p>
     <div class="daily-hero"><div class="mini-portrait">${ch.portrait()}</div><div><b>${ch.name}</b><br><small>Today's hero</small></div></div>
     <p>Everyone who plays today gets the <b>same hero, the same maps and the same rewards</b>. Compare your score with your friends!</p>
@@ -156,11 +159,13 @@ function showJournal() {
       p.history.forEach((h) => {
         const ch = CHARACTERS[h.char] || CHARACTERS.lampwright;
         const d = new Date(h.date);
-        list.appendChild(el('div', 'history-row ' + (h.won ? 'won' : 'lost'), `
+        const row = el('div', 'history-row clickable ' + (h.won ? 'won' : 'lost'), `
           <span class="h-icon">${ch.icon}</span>
-          <div class="h-main"><b>${h.won ? '🌅 Victory' : `Fell in Act ${h.act}, floor ${h.floor}`}</b>
-            <small>${ch.short}${h.depth ? ` · Depth ${h.depth}` : ''}${h.daily ? ' · 📅 Daily' : ''}${h.seed && !h.daily ? ` · Seed "${esc(h.seed)}"` : ''}${h.killedBy ? ` · Slain by ${esc(h.killedBy)}` : ''}</small></div>
-          <div class="h-score"><b>${h.score}</b><small>${d.toLocaleDateString()}</small></div>`));
+          <div class="h-main"><b>${h.won ? ':sunrise: Victory' : `Fell in Act ${h.act}, floor ${h.floor}`}</b>
+            <small>${ch.short}${h.depth ? ` · Depth ${h.depth}` : ''}${h.daily ? ' · :calendar: Daily' : ''}${h.seed && !h.daily ? ` · Seed "${esc(h.seed)}"` : ''}${h.killedBy ? ` · Slain by ${esc(h.killedBy)}` : ''}</small></div>
+          <div class="h-score"><b>${h.score}</b><small>${d.toLocaleDateString()}</small></div><span class="h-more">Details ›</span>`);
+        row.onclick = () => showRunDetails(h);
+        list.appendChild(row);
       });
       body.appendChild(list);
     } else if (tab === 'ach') {
@@ -170,7 +175,7 @@ function showJournal() {
       const grid = el('div', 'info-grid');
       ids.forEach((k) => {
         const A = ACHIEVEMENTS[k];
-        grid.appendChild(el('div', 'info-item ach-item' + (p.ach[k] ? ' got' : ''), `<span class="big-icon">${p.ach[k] ? A.icon : '🔒'}</span><div><b>${esc(A.name)}</b><p>${esc(A.desc)}</p>${p.ach[k] ? `<small>${new Date(p.ach[k]).toLocaleDateString()}</small>` : ''}</div>`));
+        grid.appendChild(el('div', 'info-item ach-item' + (p.ach[k] ? ' got' : ''), `<span class="big-icon">${p.ach[k] ? A.icon : ':lock:'}</span><div><b>${esc(A.name)}</b><p>${esc(A.desc)}</p>${p.ach[k] ? `<small>${new Date(p.ach[k]).toLocaleDateString()}</small>` : ''}</div>`));
       });
       body.appendChild(grid);
     } else if (tab === 'unlocks') {
@@ -178,7 +183,7 @@ function showJournal() {
       const list = el('div', 'history-list');
       LEVELS.forEach((L, i) => {
         if (!i) return;
-        list.appendChild(el('div', 'history-row ' + (lv >= i ? 'won' : 'lost'), `<span class="h-icon">${lv >= i ? '🔓' : '🔒'}</span>
+        list.appendChild(el('div', 'history-row ' + (lv >= i ? 'won' : 'lost'), `<span class="h-icon">${lv >= i ? ':unlock:' : ':lock:'}</span>
           <div class="h-main"><b>Lantern Level ${i}</b><small>${esc(L.unlock)}</small></div><div class="h-score"><b>${L.xp}</b><small>XP</small></div>`));
       });
       body.appendChild(list);
@@ -201,6 +206,72 @@ function showJournal() {
   setScreen(page);
 }
 
+// ---------- One run from the Journal: deck, curios, route and the map of every act ----------
+function miniMapSVG(snap) {
+  const W = 300, H = 400, TOP = 52, BOTTOM = 22;
+  const ROW = (H - TOP - BOTTOM) / (snap.rows.length - 1);
+  const pos = (r, c) => { const n = snap.rows[r][c]; return { x: (c + 0.5) * (W / MAP_COLS) + n[2] * 0.5, y: H - BOTTOM - r * ROW + n[3] * 0.5 }; };
+  const boss = { x: W / 2, y: 24 };
+  const walked = new Set(); snap.path.forEach((p, i) => { if (i) walked.add(`${snap.path[i - 1][0]},${snap.path[i - 1][1]}>${p[1]}`); });
+  const visited = new Set(snap.path.map((p) => p[0] + ',' + p[1]));
+  let lines = '', nodes = '';
+  snap.rows.forEach((row, r) => row.forEach((n, c) => {
+    if (!n) return;
+    const a = pos(r, c);
+    const targets = r === snap.rows.length - 1 ? [boss] : n[1].map((nc) => pos(r + 1, nc));
+    targets.forEach((b, i) => {
+      const isWalked = r < snap.rows.length - 1 ? walked.has(`${r},${c}>${n[1][i]}`) : visited.has(r + ',' + c) && snap.path.length >= snap.rows.length;
+      lines += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${isWalked ? '#ffd76a' : '#5d4c6c'}" stroke-width="${isWalked ? 3 : 1.2}" ${isWalked ? '' : 'stroke-dasharray="3 4"'}/>`;
+    });
+    const v = visited.has(r + ',' + c);
+    const nm = iconName(NODE_INFO[n[0]].icon) || 'rune';
+    nodes += `<circle cx="${a.x}" cy="${a.y}" r="11" fill="${v ? '#3a2a14' : '#1b1621'}" stroke="${v ? '#ffd76a' : '#5a4d66'}" stroke-width="${v ? 2.4 : 1.2}"/>`
+      + `<use href="#ic-${nm}" x="${a.x - 8}" y="${a.y - 8}" width="16" height="16" opacity="${v ? 1 : 0.5}"/>`;
+  }));
+  const bossArt = snap.boss && ENEMY_ART[snap.boss] ? `<g transform="translate(${boss.x - 20} ${boss.y - 22}) scale(.26)">${ENEMY_ART[snap.boss]().replace(/^<svg[^>]*>|<\/svg>$/g, '')}</g>` : '';
+  return `<svg class="mini-map" viewBox="0 0 ${W} ${H}">${lines}${nodes}<circle cx="${boss.x}" cy="${boss.y}" r="20" fill="#2a1010" stroke="#ff8a80" stroke-width="2"/>${bossArt}</svg>`;
+}
+
+function showRunDetails(h) {
+  const ch = CHARACTERS[h.char] || CHARACTERS.lampwright;
+  const box = el('div', 'run-details');
+  const st = h.stats || {};
+  const typeName = { fight: 'Enemy', elite: 'Elite', boss: 'Boss', event: 'Event', mystery: 'Ambush', rest: 'Hearth', shop: 'Peddler', treasure: 'Treasure' };
+  const typeIcon = (t) => (t === 'mystery' ? ':question:' : (NODE_INFO[t] || NODE_INFO.event).icon);
+  box.innerHTML = `<div class="rd-head"><div class="mini-portrait">${ch.portrait()}</div><div>
+      <h2>${h.won ? 'Victory' : `Fell in Act ${h.act}, floor ${h.floor}`}</h2>
+      <p class="sub">${esc(ch.name)}${h.depth ? ` · Depth ${h.depth}` : ''}${h.daily ? ' · Daily' : ''} · ${new Date(h.date).toLocaleString()}${h.killedBy ? ` · Slain by ${esc(h.killedBy)}` : ''}</p>
+      <div class="rd-stats"><span><b>${h.score}</b> score</span>${h.hp != null ? `<span><b>${h.hp}/${h.maxHp}</b> HP</span>` : ''}${st.floors != null ? `<span><b>${st.kills}</b> enemies slain</span><span><b>${st.elites}</b> elites</span><span><b>${st.cardsPlayed}</b> cards played</span><span><b>${st.gold}</b> gold earned</span>` : ''}</div>
+    </div></div>
+    <h3>Curios</h3><div class="rd-curios"></div>
+    <h3>Final deck ${h.cards ? `<small>(${h.cards.length} cards)</small>` : ''}</h3><div class="rd-deck"></div>
+    <h3>The descent</h3><div class="rd-acts"></div>`;
+  const curios = $('.rd-curios', box);
+  if (h.curios && h.curios.length) h.curios.forEach((id) => { const R = RELICS[id]; if (R) curios.appendChild(el('span', 'relic', R.icon)).dataset.tip = `<b>${esc(R.name)}</b><br>${esc(R.desc)}`; });
+  else curios.appendChild(el('p', 'sub', 'Not recorded for runs played before this update.'));
+  const deck = $('.rd-deck', box);
+  if (h.cards) {
+    const cards = sortDeck(h.cards.filter((x) => CARDS[x.replace('+', '')]).map((x, i) => ({ uid: 'h' + i, id: x.replace('+', ''), up: x.endsWith('+') })));
+    const grid = el('div', 'card-grid');
+    cards.forEach((c) => { const s = el('div', 'card-slot static'); s.appendChild(cardEl(c)); grid.appendChild(s); });
+    deck.appendChild(grid);
+  } else deck.appendChild(el('p', 'sub', 'Not recorded for runs played before this update.'));
+  const acts = $('.rd-acts', box);
+  const log = h.log || [];
+  if (!log.length) acts.appendChild(el('p', 'sub', 'Not recorded for runs played before this update.'));
+  [1, 2, 3].forEach((a) => {
+    const steps = log.filter((x) => x.a === a);
+    if (!steps.length) return;
+    const snap = (h.maps || []).find((m) => m.act === a);
+    const col = el('div', 'rd-act');
+    col.innerHTML = `<h4>${ACTS[a - 1].subtitle}: ${ACTS[a - 1].name}</h4>${snap ? miniMapSVG(snap) : ''}
+      <ol class="rd-route">${steps.map((x) => `<li><span class="rd-ico">${typeIcon(x.t)}</span><b>${x.f}.</b> ${typeName[x.t] || x.t}${x.d ? `: ${esc(x.d)}` : ''}</li>`).join('')}</ol>`;
+    acts.appendChild(col);
+  });
+  box.appendChild(button('Close', closeOverlay, 'btn'));
+  openOverlay(box, { wide: true });
+}
+
 function showHelp() {
   const box = el('div', 'help');
   box.innerHTML = `
@@ -210,15 +281,15 @@ function showHelp() {
     <ul>
       <li>Each turn you get <b>3 Energy</b> and draw <b>5 cards</b>. Cards cost Energy (top-left number).</li>
       <li><b>Click</b> a card to select it, then click an enemy (or click the card again / the battlefield for cards without a target). You can also <b>drag</b> cards.</li>
-      <li>Enemies show their <b>intent</b> above their heads: ⚔️ attack, 🛡️ defend, ⬆️ buff, 🌀 debuff. Plan around it!</li>
+      <li>Enemies show their <b>intent</b> above their heads: :swords: attack, :shield: defend, :arrowUp: buff, :swirl: debuff. Plan around it!</li>
       <li><b>Ward</b> blocks damage, but disappears at the start of your next turn.</li>
       <li>Shortcuts: <b>1-9</b> select cards, <b>E</b> ends your turn, <b>Esc</b>/right-click cancels.</li>
     </ul>
     ${Object.values(CHARACTERS).map((ch) => `<h3>${ch.icon} ${ch.name}</h3><ul>${ch.mechanics.map(([i, n, d]) => `<li>${i} <b>${n}</b>: ${d}</li>`).join('')}</ul>`).join('')}
-    <ul><li>💪 <b>Might</b> boosts every Attack. 🪨 <b>Fortitude</b> boosts every Ward card.</li></ul>
+    <ul><li>:might: <b>Might</b> boosts every Attack. :rock: <b>Fortitude</b> boosts every Ward card.</li></ul>
     <h3>The map</h3>
     <ul>
-      <li>⚔️ Enemy · 😈 Elite (drops a Curio) · ❓ Unknown event · 🔥 Hearth (heal or upgrade) · 🛒 Peddler (shop) · 🧰 Treasure.</li>
+      <li>:swords: Enemy · :devil: Elite (drops a Curio) · :question: Unknown event · :flame: Hearth (heal or upgrade) · :stall: Peddler (shop) · :chest: Treasure.</li>
       <li>Defeat the boss at the top to reach the next act. Win all three acts to bring back the dawn.</li>
     </ul>
     <h3>Progress</h3>
@@ -263,7 +334,7 @@ function showFerryman() {
   run.pending = { type: 'ferryman' };
   saveRun();
   const page = actStyle(el('div', 'event-screen'));
-  page.innerHTML = `${embers(16)}<div class="event-art">🛶</div>
+  page.innerHTML = `${embers(16)}<div class="event-art">:boat:</div>
     <h1>The Ferryman</h1>
     <p class="event-text">At the edge of the abyss a hooded ferryman waits beside a boat of black wood. He studies your lantern for a long moment.<br><br>
     <i>"Few come this far down. Take a gift, ${currentChar().short}. You will need it."</i></p>
@@ -307,10 +378,10 @@ function showRewards(r, onDone, title = 'Victory!') {
   Sound.music('map');
   const page = actStyle(el('div', 'reward-screen'));
   const items = [];
-  if (r.gold && !hasRelic('hollow')) items.push({ icon: '🪙', label: `${r.gold} Gold`, take: async () => { gainGold(r.gold); return true; } });
+  if (r.gold && !hasRelic('hollow')) items.push({ icon: ':coin:', label: `${r.gold} Gold`, take: async () => { gainGold(r.gold); return true; } });
   if (r.potion) items.push({ icon: POTIONS[r.potion].icon, label: POTIONS[r.potion].name, tip: POTIONS[r.potion].desc, take: async () => obtainPotion(r.potion) });
   if (r.relic) items.push({ icon: RELICS[r.relic].icon, label: RELICS[r.relic].name, tip: RELICS[r.relic].desc, take: async () => { obtainRelic(r.relic); return true; } });
-  if (r.cards) items.push({ icon: '🃏', label: 'Add a card to your deck', take: async () => !!(await offerCards(r.cards, 'Choose a card')) });
+  if (r.cards) items.push({ icon: ':cards:', label: 'Add a card to your deck', take: async () => !!(await offerCards(r.cards, 'Choose a card')) });
   const draw = () => {
     page.innerHTML = `${embers(14)}<h1>${title}</h1><div class="reward-list"></div>`;
     const list = $('.reward-list', page);
@@ -351,8 +422,8 @@ function showRest() {
   Sound.music('rest');
   const run = Game.run;
   const page = actStyle(el('div', 'rest-screen'));
-  const heal = Math.floor(run.maxHp * (depthOn(5) ? 0.25 : 0.3)) + (hasRelic('pillow') ? 15 : 0);
-  page.innerHTML = `${embers(36)}<div class="campfire">🔥</div><h1>The Hearth</h1>
+  const heal = Math.floor(run.maxHp * (depthOn(5) ? 0.3 : 0.35)) + (hasRelic('pillow') ? 15 : 0);
+  page.innerHTML = `${embers(36)}<div class="campfire">:flame:</div><h1>The Hearth</h1>
     <p class="sub">A rare warm place in the dark. Your lantern drinks in the heat.</p><div class="rest-options"></div>`;
   const opts = $('.rest-options', page);
   const finish = (msg) => {
@@ -360,10 +431,10 @@ function showRest() {
     opts.appendChild(button('Proceed', completeNode, 'btn big primary'));
     renderTopbar(true);
   };
-  const rest = el('button', 'rest-option', `<span>😴</span><b>Rest</b><small>Heal ${heal} HP</small>`);
+  const rest = el('button', 'rest-option', `<span>:sleep:</span><b>Rest</b><small>Heal ${heal} HP</small>`);
   if (hasRelic('crown')) { rest.disabled = true; rest.dataset.tip = 'The Ember Crown forbids rest.'; }
   rest.onclick = () => { const before = run.hp; healRun(heal); finish(`You rest by the fire and recover ${run.hp - before} HP.`); };
-  const temper = el('button', 'rest-option', `<span>⚒️</span><b>Temper</b><small>Upgrade a card</small>`);
+  const temper = el('button', 'rest-option', `<span>:hammer:</span><b>Temper</b><small>Upgrade a card</small>`);
   if (!run.deck.some(canUpgrade)) temper.disabled = true;
   temper.onclick = async () => { const c = await chooseUpgradeCard(); if (c) finish(`You temper <b>${esc(cardName(c))}</b> in the flames.`); };
   opts.append(rest, temper);
@@ -377,7 +448,7 @@ function showTreasure() {
   Sound.music('map');
   const page = actStyle(el('div', 'treasure-screen'));
   page.innerHTML = `${embers(16)}<h1>Treasure</h1><p class="sub">An old chest, sealed with wax and rust.</p>`;
-  const chest = el('button', 'chest', '🧰');
+  const chest = el('button', 'chest', ':chest:');
   chest.dataset.tip = 'Open the chest';
   chest.onclick = () => {
     chest.disabled = true;
@@ -447,7 +518,7 @@ function showShop() {
     draw();
   };
   const draw = () => {
-    page.innerHTML = `<div class="shop-head"><div class="merchant">🧙‍♂️</div><div><h1>The Wandering Peddler</h1>
+    page.innerHTML = `<div class="shop-head"><div class="merchant">:mage:</div><div><h1>The Wandering Peddler</h1>
       <p class="sub">"Light's dear down here, friend. But I've got just the thing..."</p></div></div>
       <div class="shop-cards"></div><div class="shop-row"><div class="shop-relics"></div><div class="shop-potions"></div><div class="shop-remove"></div></div>`;
     const cards = $('.shop-cards', page);
@@ -455,7 +526,7 @@ function showShop() {
       const slot = el('div', 'shop-item card-item' + (s.sold ? ' sold' : ''));
       slot.appendChild(cardEl(s.card));
       const p = price(s.price);
-      slot.appendChild(el('div', 'price' + (s.sale ? ' sale' : '') + (run.gold < p ? ' poor' : ''), `🪙 ${p}${s.sale ? ' <small>SALE</small>' : ''}`));
+      slot.appendChild(el('div', 'price' + (s.sale ? ' sale' : '') + (run.gold < p ? ' poor' : ''), `:coin: ${p}${s.sale ? ' <small>SALE</small>' : ''}`));
       if (!s.sold) slot.onclick = () => buy(p, () => { run.deck.push(s.card); s.sold = true; toast(`Bought <b>${esc(cardName(s.card))}</b>`); });
       cards.appendChild(slot);
     });
@@ -464,7 +535,7 @@ function showShop() {
     stock.relics.forEach((s) => {
       const R = RELICS[s.id];
       const p = price(s.price);
-      const b = el('button', 'shop-item relic-item' + (s.sold ? ' sold' : ''), `<span class="big-icon">${R.icon}</span><div class="price${run.gold < p ? ' poor' : ''}">🪙 ${p}</div>`);
+      const b = el('button', 'shop-item relic-item' + (s.sold ? ' sold' : ''), `<span class="big-icon">${R.icon}</span><div class="price${run.gold < p ? ' poor' : ''}">:coin: ${p}</div>`);
       b.dataset.tip = `<b>${esc(R.name)}</b><br>${esc(R.desc)}`;
       if (!s.sold) b.onclick = () => buy(p, () => { obtainRelic(s.id); s.sold = true; });
       relics.appendChild(b);
@@ -474,7 +545,7 @@ function showShop() {
     stock.potions.forEach((s) => {
       const P = POTIONS[s.id];
       const p = price(s.price);
-      const b = el('button', 'shop-item potion-item' + (s.sold ? ' sold' : ''), `<span class="big-icon" style="filter:hue-rotate(${P.hue}deg)">${P.icon}</span><div class="price${run.gold < p ? ' poor' : ''}">🪙 ${p}</div>`);
+      const b = el('button', 'shop-item potion-item' + (s.sold ? ' sold' : ''), `<span class="big-icon" style="filter:hue-rotate(${P.hue}deg)">${P.icon}</span><div class="price${run.gold < p ? ' poor' : ''}">:coin: ${p}</div>`);
       b.dataset.tip = `<b>${esc(P.name)}</b><br>${esc(P.desc)}`;
       if (!s.sold) b.onclick = () => buy(p, () => { if (!obtainPotion(s.id)) return false; s.sold = true; });
       pots.appendChild(b);
@@ -482,7 +553,7 @@ function showShop() {
     const rem = $('.shop-remove', page);
     rem.innerHTML = '<h3>Services</h3>';
     const rp = price(run.removeCost);
-    const rb = el('button', 'shop-item remove-item' + (stock.removed ? ' sold' : ''), `<span class="big-icon">✂️</span><b>Remove a card</b><div class="price${run.gold < rp ? ' poor' : ''}">🪙 ${rp}</div>`);
+    const rb = el('button', 'shop-item remove-item' + (stock.removed ? ' sold' : ''), `<span class="big-icon">:scissors:</span><b>Remove a card</b><div class="price${run.gold < rp ? ' poor' : ''}">:coin: ${rp}</div>`);
     rb.dataset.tip = 'Remove a card from your deck. Price rises each time.';
     if (!stock.removed) rb.onclick = async () => {
       if (run.gold < rp) return toast('Not enough gold!');
@@ -539,7 +610,7 @@ function showGameOver(won) {
   const unlocks = [];
   for (let i = res.levelBefore + 1; i <= res.levelAfter; i++) unlocks.push(LEVELS[i].unlock);
   page.innerHTML = `${embers(won ? 60 : 10)}
-    <div class="go-icon">${won ? '🌅' : '🕯️'}</div>
+    <div class="go-icon">${won ? ':sunrise:' : ':candle:'}</div>
     <h1>${won ? 'The Dawn Returns' : 'Your Light Fades...'}</h1>
     <p class="sub">${won ? `Umbra is no more. ${ch.name} climbs back toward a sky that is, at last, turning gold.` : `You fell in ${ACTS[run.act - 1].name}, on floor ${run.floor}${run.lastFight ? `, to ${esc(run.lastFight)}` : ''}.`}</p>
     ${run.depth ? `<p class="go-depth">Depth ${run.depth}: ${esc(DEPTHS[run.depth].name)}</p>` : ''}
@@ -552,8 +623,8 @@ function showGameOver(won) {
       <div class="score"><b>${res.score}</b><span>Score</span></div>
     </div>
     <div class="go-xp">+${res.score} XP ${levelBarHTML(res.xpAfter)}</div>
-    ${unlocks.map((u) => `<div class="go-unlock">🔓 <b>Unlocked:</b> ${esc(u)}</div>`).join('')}
-    ${res.depthUnlocked ? `<div class="go-unlock">🕳️ <b>Depth ${res.depthUnlocked}</b> unlocked for ${ch.short}: ${esc(DEPTHS[res.depthUnlocked].name)}</div>` : ''}
+    ${unlocks.map((u) => `<div class="go-unlock">:unlock: <b>Unlocked:</b> ${esc(u)}</div>`).join('')}
+    ${res.depthUnlocked ? `<div class="go-unlock">:hole: <b>Depth ${res.depthUnlocked}</b> unlocked for ${ch.short}: ${esc(DEPTHS[res.depthUnlocked].name)}</div>` : ''}
     ${newAch.length ? `<div class="go-ach">${newAch.map((k) => `<span data-tip="${esc(ACHIEVEMENTS[k].desc)}">${ACHIEVEMENTS[k].icon} ${esc(ACHIEVEMENTS[k].name)}</span>`).join('')}</div>` : ''}
     <div class="deck-fan"></div>`;
   // the final deck, fanned out
@@ -572,7 +643,7 @@ function showGameOver(won) {
   });
   if (run.daily) {
     const text = `Lanternfall Daily ${run.daily} · ${ch.short} · ${won ? 'Victory!' : `Act ${run.act}, floor ${run.floor}`} · Score ${res.score}`;
-    page.appendChild(button('📋 Copy result to share', () => {
+    page.appendChild(button(':clipboard: Copy result to share', () => {
       (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => toast('Copied! Paste it to your friends.'), () => toast(text, 6000));
     }, 'btn'));
   }
@@ -620,7 +691,7 @@ function showLibrary() {
       ids.forEach((id) => {
         const s = el('div', 'card-slot static');
         s.appendChild(cardEl({ id, up: showUp && CARDS[id].rarity !== 'special' }));
-        if (!isUnlocked(CARDS[id])) { s.classList.add('locked-card'); s.appendChild(el('div', 'lock-badge', `🔒 Lantern Level ${CARDS[id].unlock}`)); }
+        if (!isUnlocked(CARDS[id])) { s.classList.add('locked-card'); s.appendChild(el('div', 'lock-badge', `:lock: Lantern Level ${CARDS[id].unlock}`)); }
         grid.appendChild(s);
       });
       body.appendChild(el('p', 'sub', `${ids.length} cards`));
@@ -630,7 +701,7 @@ function showLibrary() {
       for (const rar of ['starter', 'common', 'uncommon', 'rare', 'boss']) {
         Object.keys(RELICS).filter((k) => RELICS[k].rarity === rar).forEach((k) => {
           const R = RELICS[k];
-          const lk = !isUnlocked(R) ? ` <small>🔒 Lantern Level ${R.unlock}</small>` : '';
+          const lk = !isUnlocked(R) ? ` <small>:lock: Lantern Level ${R.unlock}</small>` : '';
           grid.appendChild(el('div', 'info-item r-' + rar + (lk ? ' locked' : ''), `<span class="big-icon">${R.icon}</span><div><b>${esc(R.name)}</b> <small>${rar}${R.char ? " · " + CHARACTERS[R.char].short + " only" : ""}</small>${lk}<p>${kwText(R.desc)}</p></div>`));
         });
       }

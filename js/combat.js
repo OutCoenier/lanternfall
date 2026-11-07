@@ -1,6 +1,11 @@
 // ===== Combat engine =====
 'use strict';
 
+// Overall enemy strength. Every Depth builds on top of these.
+// Index = act number (1-3).
+const ENEMY_HP_TUNE = [1, 0.88, 0.8, 0.8], ENEMY_DMG_TUNE = [1, 0.9, 0.85, 0.85], BOSS_HP_TUNE = 0.82;
+const actTune = (t) => t[clamp((Game.run && Game.run.act) || 1, 1, 3)];
+
 class Combat {
   constructor(encounter, kind) {
     const run = Game.run;
@@ -42,7 +47,7 @@ class Combat {
     let hp = opts.hp != null ? opts.hp : rand(def.hp[0], def.hp[1]);
     if (opts.hp == null) {
       const mult = def.boss ? (depthOn(3) ? 1.15 : 1) : def.elite ? (depthOn(1) ? 1.2 : 1) : (depthOn(2) ? 1.1 : 1);
-      hp = Math.round(hp * mult);
+      hp = Math.round(hp * mult * actTune(ENEMY_HP_TUNE) * (def.boss ? BOSS_HP_TUNE : 1));
     }
     const e = { uid: 'e' + (++this.uidCounter), id, def, name: def.name, hp, maxHp: hp, block: 0, statuses: {},
       history: [], turns: 0, dead: false, minion: !!opts.minion, intent: null };
@@ -243,6 +248,7 @@ class Combat {
 
   // ---------- Numbers ----------
   calcDamage(src, tgt, base) {
+    if (src.def && !src.isPlayer && !src.isKnight) base *= actTune(ENEMY_DMG_TUNE);
     let d = base + (src.statuses.might || 0) + (src.isPlayer ? this.cardBonus : 0);
     if (src.statuses.sapped) d *= 0.75;
     if (tgt && tgt.statuses.exposed) d *= !tgt.isPlayer && hasRelic('lens') ? 1.75 : 1.5;
@@ -300,7 +306,7 @@ class Combat {
     ent.block += b;
     Sound.play('block');
     Fx.at(ent, 'shield');
-    this.float(ent, `+${b} 🛡️`, 'block');
+    this.float(ent, `+${b} :shield:`, 'block');
     this.renderEntity(ent);
     return b;
   }
@@ -363,7 +369,7 @@ class Combat {
     if (kind === 'attack' && tgt.statuses.bleed && tgt.hp > 0) {
       const b = tgt.statuses.bleed;
       tgt.hp -= b;
-      this.float(tgt, `-${b} 🩸`, 'burn');
+      this.float(tgt, `-${b} :bloodDrop:`, 'burn');
       Fx.at(tgt, 'bleed');
     }
     if (kind === 'attack' && hpd > 0 && tgt.statuses.coil) {
@@ -653,14 +659,14 @@ class Combat {
       <div class="combat-bottom">
         <div class="cb-left">
           <div class="energy-orb" data-tip="<b>Energy</b><br>Spend Energy to play cards. Refills each turn."><span></span></div>
-          <button class="pile-btn draw-pile" data-tip="<b>Draw pile</b><br>Click to view (order hidden).">🂠 <b></b></button>
+          <button class="pile-btn draw-pile" data-tip="<b>Draw pile</b><br>Click to view (order hidden).">:cardBack: <b></b></button>
         </div>
         <div class="hand"></div>
         <div class="cb-right">
           <button class="btn end-turn">End Turn</button>
           <div class="piles">
-            <button class="pile-btn discard-pile" data-tip="<b>Discard pile</b>">🗑️ <b></b></button>
-            <button class="pile-btn exhaust-pile" data-tip="<b>Exhausted</b><br>Removed for this combat.">💨 <b></b></button>
+            <button class="pile-btn discard-pile" data-tip="<b>Discard pile</b>">:trash: <b></b></button>
+            <button class="pile-btn exhaust-pile" data-tip="<b>Exhausted</b><br>Removed for this combat.">:wind: <b></b></button>
           </div>
         </div>
       </div>`;
@@ -755,33 +761,33 @@ class Combat {
   }
 
   intentHTML(e) {
-    if (e.intent === '__split') return `<div class="intent-inner" data-tip="<b>Split</b><br>Will split into two smaller slimes.">➗</div>`;
+    if (e.intent === '__split') return `<div class="intent-inner" data-tip="<b>Split</b><br>Will split into two smaller slimes.">:divide:</div>`;
     const m = e.def.moves[e.intent];
     if (!m) return '';
-    if (m.intent === 'unknown') return `<div class="intent-inner unknown" data-tip="<b>???</b><br>Its intent is unknown.">❓</div>`;
+    if (m.intent === 'unknown') return `<div class="intent-inner unknown" data-tip="<b>???</b><br>Its intent is unknown.">:question:</div>`;
     const parts = [], tip = [];
     if (m.dmg) {
       const d = this.calcDamage(e, this.player, m.dmg);
       const h = m.hits || 1;
-      parts.push(`<span class="i-atk">${d >= 25 ? '🪓' : '⚔️'}<b>${d}${h > 1 ? '×' + h : ''}</b></span>`);
+      parts.push(`<span class="i-atk">${d >= 25 ? ':axe:' : ':swords:'}<b>${d}${h > 1 ? '×' + h : ''}</b></span>`);
       tip.push(`Intends to <b>attack</b> for ${d} damage${h > 1 ? ` ${h} times` : ''}.`);
     }
     const fx = (obj) => Object.entries(obj).map(([k, n]) => `${n} ${STATUSES[k] ? STATUSES[k].icon + ' ' + STATUSES[k].name : k}`).join(', ');
-    if (m.block || m.intent === 'defend') { parts.push('🛡️'); tip.push(m.block ? `Gains <b>${m.block} Ward</b>.` : 'Intends to <b>defend</b>.'); }
+    if (m.block || m.intent === 'defend') { parts.push(':shield:'); tip.push(m.block ? `Gains <b>${m.block} Ward</b>.` : 'Intends to <b>defend</b>.'); }
     if (m.buff || m.buffAll || m.intent === 'buff') {
-      parts.push('⬆️');
+      parts.push(':arrowUp:');
       if (m.buff) tip.push(`Gains <b>${fx(m.buff)}</b>.`);
       if (m.buffAll) tip.push(`Gives itself and its allies <b>${fx(m.buffAll)}</b>.`);
       if (!m.buff && !m.buffAll) tip.push('Intends to <b>strengthen</b> itself.');
     }
     if (m.debuff || m.cards || m.intent === 'debuff') {
-      parts.push('🌀');
+      parts.push(':swirl:');
       if (m.debuff) tip.push(`Gives you <b>${fx(m.debuff)}</b>.`);
       if (m.cards) for (const c of m.cards) tip.push(`Shuffles <b>${c.n} ${CARDS[c.id].name}</b> into your ${c.pile === 'draw' ? 'draw' : 'discard'} pile.`);
       if (!m.debuff && !m.cards) tip.push('Intends to <b>hinder</b> you.');
     }
-    if (m.summon) { parts.push('🥚'); tip.push(`Summons <b>${ENEMIES[m.summon.id].name}</b>.`); }
-    if (!parts.length) { parts.push('❓'); tip.push('Its intent is unknown.'); }
+    if (m.summon) { parts.push(':egg:'); tip.push(`Summons <b>${ENEMIES[m.summon.id].name}</b>.`); }
+    if (!parts.length) { parts.push(':question:'); tip.push('Its intent is unknown.'); }
     return `<div class="intent-inner" data-tip="<b>${esc(m.name)}</b><br>${tip.join(' ')}">${parts.join(' ')}</div>`;
   }
 
@@ -1158,7 +1164,7 @@ class Combat {
       const id = randomPotion();
       obtainPotion(id);
       this.float(this.player, `Brewed ${POTIONS[id].name}`, 'buff');
-      Fx.at(this.player, 'buff', { col: '#8fe36a', glyph: '🧪' });
+      Fx.at(this.player, 'buff', { col: '#8fe36a', glyph: ':flask:' });
     }
     renderTopbar(true);
   }
@@ -1170,7 +1176,7 @@ class Combat {
     const p = this.player.statuses;
     Fx.at(e, 'impact', { scale: 1.8 }); Fx.at(e, 'fire', { scale: 1.4 }); Fx.shake(this.root, 9);
     Sound.play('explode');
-    this.float(e, '💥 BOOM!', 'dmg');
+    this.float(e, ':burst: BOOM!', 'dmg');
     await this.damage(e, 25 + (p.catalysis || 0), null, 'hploss');
     if (p.reactiveArmor) this.gainBlock(this.player, p.reactiveArmor, false);
     if (p.chainReaction) for (const o of this.alive()) if (o !== e) this.apply(o, 'unstable', p.chainReaction);

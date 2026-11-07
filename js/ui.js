@@ -241,7 +241,7 @@ function viewCards(cards, title) {
 let showUpgrades = false;
 function upgradeToggle(grid, cards) {
   const lab = el('button', 'up-toggle' + (showUpgrades ? ' on' : ''));
-  const label = () => { lab.innerHTML = `<span class="up-box">${showUpgrades ? '✓' : ''}</span> ${showUpgrades ? 'Showing upgraded cards' : 'Show upgraded cards'} <small>(U)</small>`; lab.classList.toggle('on', showUpgrades); };
+  const label = () => { lab.innerHTML = `<span class="up-box">${showUpgrades ? ':check:' : ''}</span> ${showUpgrades ? 'Showing upgraded cards' : 'Show upgraded cards'} <small>(U)</small>`; lab.classList.toggle('on', showUpgrades); };
   label();
   const apply = () => {
     [...grid.querySelectorAll(':scope > .card-slot')].forEach((slot, i) => {
@@ -279,18 +279,18 @@ function renderTopbar(force = false) {
   tb.innerHTML = `
     <div class="tb-left">
       <span class="tb-name">${currentChar().icon} ${currentChar().name}</span>
-      <span class="tb-stat hp" data-tip="Hit Points">❤️ ${hp}/${maxHp}</span>
-      <span class="tb-stat gold" data-tip="Gold">🪙 ${run.gold}</span>
+      <span class="tb-stat hp" data-tip="Hit Points">:heart: ${hp}/${maxHp}</span>
+      <span class="tb-stat gold" data-tip="Gold">:coin: ${run.gold}</span>
       <span class="tb-potions">${run.potions.map((p, i) => p
         ? `<button class="potion-slot" data-slot="${i}" data-tip="<b>${POTIONS[p].name}</b><br>${POTIONS[p].desc}"><span style="filter:hue-rotate(${POTIONS[p].hue}deg)">${POTIONS[p].icon}</span></button>`
         : `<span class="potion-slot empty" data-tip="Empty Tonic slot">·</span>`).join('')}</span>
     </div>
     <div class="tb-mid">${ACTS[run.act - 1].subtitle}: ${actName} · Floor ${run.floor}</div>
     <div class="tb-right">
-      <button class="btn small" id="tbMap" data-tip="View the map">🗺️ Map</button>
-      <button class="btn small" id="tbDeck" data-tip="View your deck">🃏 Deck <b>${run.deck.length}</b></button>
-      <button class="btn small ghost" id="tbSound" data-tip="Sound on/off (M)">${Sound.settings.muted ? '🔇' : '🔊'}</button>
-      <button class="btn small ghost" id="tbMenu" data-tip="Menu">☰</button>
+      <button class="btn small" id="tbMap" data-tip="View the map">:map: Map</button>
+      <button class="btn small" id="tbDeck" data-tip="View your deck">:cards: Deck <b>${run.deck.length}</b></button>
+      <button class="btn small ghost" id="tbSound" data-tip="Sound on/off (M)">${Sound.settings.muted ? ':speakerOff:' : ':speaker:'}</button>
+      <button class="btn small ghost" id="tbMenu" data-tip="Menu">:menu:</button>
     </div>`;
   rb.innerHTML = run.relics.map((r) => {
     const R = RELICS[r.id];

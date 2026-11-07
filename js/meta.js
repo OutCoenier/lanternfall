@@ -23,7 +23,7 @@ const DEPTHS = [
   { name: 'Restless Dead', desc: 'Normal enemies have 10% more HP.' },
   { name: 'Tyrants', desc: 'Bosses have 15% more HP.' },
   { name: 'Haunted', desc: 'Start each run with a Dread curse.' },
-  { name: 'Cold Hearths', desc: 'Resting heals 25% of your Max HP instead of 30%.' },
+  { name: 'Cold Hearths', desc: 'Resting heals 30% of your Max HP instead of 35%.' },
   { name: 'Frail', desc: 'Start with 8 less Max HP.' },
   { name: 'Poverty', desc: 'Gain 25% less gold from combat.' },
   { name: 'Savage', desc: 'Normal enemies start each combat with 1 Might.' },
@@ -36,28 +36,28 @@ function depthOn(n) { return !!(Game.run && (Game.run.depth || 0) >= n); }
 
 // ---------- Achievements ----------
 const ACHIEVEMENTS = {
-  firstBlood:  { icon: '⚔️', name: 'First Blood', desc: 'Win your first combat.' },
-  brine:       { icon: '🐙', name: 'Low Tide', desc: 'Defeat Mother Brine.' },
-  sovereign:   { icon: '🍄', name: 'Regicide', desc: 'Defeat the Pale Sovereign.' },
-  dawn:        { icon: '🌅', name: 'The Dawn Returns', desc: 'Win a run.' },
-  winLamp:     { icon: '🏮', name: 'Keeper of the Light', desc: 'Win a run as the Lampwright.' },
-  winMoon:     { icon: '🌙', name: 'Last of the Order', desc: 'Win a run as the Moonblade.' },
-  winAlch:     { icon: '⚗️', name: 'Magnum Opus', desc: 'Win a run as the Alchemist.' },
-  winCass:     { icon: '🖤', name: 'Happily Ever After', desc: 'Win a run as Cassandra.' },
-  depth5:      { icon: '🕳️', name: 'Into the Deep', desc: 'Win a run at Depth 5 or higher.' },
-  depth10:     { icon: '🌑', name: 'Endless Night', desc: 'Win a run at Depth 10.' },
-  bigHit:      { icon: '💥', name: 'Overkill', desc: 'Deal 40 or more damage with a single hit.' },
-  lean:        { icon: '🪶', name: 'Travelling Light', desc: 'Win a run with 15 or fewer cards in your deck.' },
-  hoarder:     { icon: '🧳', name: 'Collector', desc: 'Hold 10 or more curios at once.' },
-  rich:        { icon: '💰', name: 'Dragon\'s Hoard', desc: 'Hold 500 or more gold at once.' },
-  pyre:        { icon: '🔥', name: 'Funeral Pyre', desc: 'Finish off an enemy with Burn.' },
-  hemorrhage:  { icon: '🩸', name: 'Bloodletter', desc: 'Give a single enemy 20 or more Bleed.' },
-  boom:        { icon: '🧨', name: 'Chain Reaction', desc: 'Make 3 enemies explode in one combat.' },
-  flawless:    { icon: '✨', name: 'Untouched', desc: 'Win an elite fight without losing any HP.' },
-  quick:       { icon: '⚡', name: 'Blink and Miss It', desc: 'Win a combat on your first turn.' },
-  tonics:      { icon: '🧪', name: 'Mixologist', desc: 'Use 4 Tonics in a single combat.' },
-  daily:       { icon: '📅', name: 'Daily Descent', desc: 'Finish a daily run.' },
-  level6:      { icon: '🏆', name: 'Master Lampwright', desc: 'Reach Lantern Level 6.' },
+  firstBlood:  { icon: ':swords:', name: 'First Blood', desc: 'Win your first combat.' },
+  brine:       { icon: ':octopus:', name: 'Low Tide', desc: 'Defeat Mother Brine.' },
+  sovereign:   { icon: ':mushroom:', name: 'Regicide', desc: 'Defeat the Pale Sovereign.' },
+  dawn:        { icon: ':sunrise:', name: 'The Dawn Returns', desc: 'Win a run.' },
+  winLamp:     { icon: ':lantern:', name: 'Keeper of the Light', desc: 'Win a run as the Lampwright.' },
+  winMoon:     { icon: ':moon:', name: 'Last of the Order', desc: 'Win a run as the Moonblade.' },
+  winAlch:     { icon: ':flask:', name: 'Magnum Opus', desc: 'Win a run as the Alchemist.' },
+  winCass:     { icon: ':heartDark:', name: 'Happily Ever After', desc: 'Win a run as Cassandra.' },
+  depth5:      { icon: ':hole:', name: 'Into the Deep', desc: 'Win a run at Depth 5 or higher.' },
+  depth10:     { icon: ':newMoon:', name: 'Endless Night', desc: 'Win a run at Depth 10.' },
+  bigHit:      { icon: ':burst:', name: 'Overkill', desc: 'Deal 40 or more damage with a single hit.' },
+  lean:        { icon: ':feather:', name: 'Travelling Light', desc: 'Win a run with 15 or fewer cards in your deck.' },
+  hoarder:     { icon: ':bag:', name: 'Collector', desc: 'Hold 10 or more curios at once.' },
+  rich:        { icon: ':moneybag:', name: 'Dragon\'s Hoard', desc: 'Hold 500 or more gold at once.' },
+  pyre:        { icon: ':flame:', name: 'Funeral Pyre', desc: 'Finish off an enemy with Burn.' },
+  hemorrhage:  { icon: ':bloodDrop:', name: 'Bloodletter', desc: 'Give a single enemy 20 or more Bleed.' },
+  boom:        { icon: ':firecracker:', name: 'Chain Reaction', desc: 'Make 3 enemies explode in one combat.' },
+  flawless:    { icon: ':sparkles:', name: 'Untouched', desc: 'Win an elite fight without losing any HP.' },
+  quick:       { icon: ':bolt:', name: 'Blink and Miss It', desc: 'Win a combat on your first turn.' },
+  tonics:      { icon: ':flask:', name: 'Mixologist', desc: 'Use 4 Tonics in a single combat.' },
+  daily:       { icon: ':calendar:', name: 'Daily Descent', desc: 'Finish a daily run.' },
+  level6:      { icon: ':trophy:', name: 'Master Lampwright', desc: 'Reach Lantern Level 6.' },
 };
 
 // ---------- Profile ----------
@@ -70,7 +70,12 @@ const Profile = {
     try { this.d = Object.assign(this.defaults(), JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}')); } catch (e) { this.d = this.defaults(); }
     return this.d;
   },
-  save() { try { localStorage.setItem(PROFILE_KEY, JSON.stringify(this.d)); } catch (e) { /* ignore */ } },
+  // fromCloud: the profile was just merged with the account's copy, so do not upload it again
+  save(fromCloud) {
+    if (!fromCloud) this.d.savedAt = Date.now();
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify(this.d)); } catch (e) { /* ignore */ }
+    if (!fromCloud && typeof Cloud !== 'undefined') Cloud.changed(false);
+  },
   get() { return this.d || this.load(); },
   level() {
     const xp = this.get().xp;
@@ -83,7 +88,8 @@ const Profile = {
 };
 
 // Is a card / curio unlocked yet?
-function isUnlocked(def) { return !def || !def.unlock || Profile.level() >= def.unlock; }
+// In a Daily run everything counts as unlocked, so everyone draws from the same cards and curios.
+function isUnlocked(def) { return !def || !def.unlock || !!(Game.run && Game.run.daily) || Profile.level() >= def.unlock; }
 function heroUnlocked(id) { return isUnlocked(CHARACTERS[id]); }
 
 function unlockAch(id) {
@@ -127,10 +133,14 @@ function finishRun(won) {
     const d = run.depth || 0;
     if (!run.daily && !run.seed && d >= (p.depth[ch] || 0) && d < MAX_DEPTH) { p.depth[ch] = d + 1; depthUnlocked = d + 1; }
   } else p.streak[ch] = 0;
+  snapshotAct(run);
   const entry = { date: Date.now(), char: ch, depth: run.depth || 0, won, act: run.act, floor: run.floor, score,
+    cards: run.deck.map((c) => c.id + (c.up ? '+' : '')), curios: run.relics.map((r) => r.id), hp: run.hp, maxHp: run.maxHp,
+    stats: { ...run.stats }, log: run.log || [], maps: run.maps || [],
     deck: run.deck.length, relics: run.relics.length, killedBy: won ? null : run.lastFight || null, daily: run.daily || null, seed: run.seed || null };
   p.history.unshift(entry);
   p.history = p.history.slice(0, 60);
+  p.history.forEach((h, i) => { if (i >= 15) delete h.maps; }); // keep maps for the latest runs only (storage)
   if (run.daily) {
     const prev = p.daily[run.daily];
     if (!prev || score > prev.score) p.daily[run.daily] = { score, won, act: run.act, floor: run.floor, char: ch };
@@ -152,12 +162,14 @@ function finishRun(won) {
 }
 
 // ---------- Daily runs ----------
+// The day is counted in UTC so players in every time zone share the same Daily.
 function todayKey() {
   const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
 }
+// Every hero can be the Daily hero, even ones you have not unlocked yet.
 function dailyHero(key = todayKey()) {
-  const heroes = Object.keys(CHARACTERS).filter(heroUnlocked);
+  const heroes = Object.keys(CHARACTERS);
   return heroes[Math.abs(hashSeed('hero' + key)) % heroes.length];
 }
 

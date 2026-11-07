@@ -8,11 +8,12 @@ function saveRun() {
   if (!Game.run) return;
   Game.run.rngState = Rng.state;
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(Game.run)); } catch (e) { /* storage unavailable */ }
+  Cloud.changed(true);
 }
 function loadSave() {
   try { const s = localStorage.getItem(SAVE_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; }
 }
-function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ } }
+function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ } Cloud.changed(true); }
 
 function loadSettings() {
   try { Game.speed = +(localStorage.getItem('lanternfall_speed') || 1); } catch (e) { Game.speed = 1; }
@@ -41,8 +42,18 @@ function newRun(charId = 'lampwright', opts = {}) {
   showFerryman();
 }
 
+// A compact copy of the current act's map and the path taken, kept for the Journal.
+function snapshotAct(run) {
+  if (!run.map) return;
+  run.maps = run.maps || [];
+  if (run.maps.some((m) => m.act === run.act)) return;
+  run.maps.push({ act: run.act, boss: run.bossEncounter && run.bossEncounter[0],
+    rows: run.map.rows.map((row) => row.map((n) => (n ? [n.type, n.next, Math.round(n.jx), Math.round(n.jy)] : 0))), path: run.path.map((p) => [p.r, p.c]) });
+}
+
 function startAct(n) {
   const run = Game.run;
+  snapshotAct(run);
   run.act = n;
   if (run.seed) Rng.state = hashSeed(run.seed + ':act' + n);
   run.map = genMap(n);
@@ -68,6 +79,9 @@ function enterNode(n) {
   run.floor++;
   run.stats.floors++;
   if (n.type !== 'boss') { run.pos = { r: n.r, c: n.c }; run.path.push({ r: n.r, c: n.c }); }
+  // Seeded runs give every map spot its own random stream, so the same spot always
+  // holds the same fight, event or shop, whatever happened earlier in the run.
+  if (run.seed) Rng.state = hashSeed(`${run.seed}:a${run.act}:${n.type === 'boss' ? 'boss' : n.r + '-' + n.c}`);
   let pending = { type: n.type };
   if (n.type === 'fight') pending.encounter = pickEncounter();
   else if (n.type === 'elite') pending.encounter = pick(ACTS[run.act - 1].elites);
@@ -77,6 +91,10 @@ function enterNode(n) {
     if (myst && myst.length && chance(0.15)) pending = { type: 'mystery', encounter: pick(myst) };
     else pending.eventId = pickEvent();
   }
+  run.log = run.log || [];
+  const names = (enc) => enc.map((id) => ENEMIES[id].name).join(' & ');
+  run.log.push({ f: run.floor, a: run.act, t: pending.type,
+    d: pending.encounter ? names(pending.encounter) : pending.eventId ? EVENTS[pending.eventId].name : '' });
   run.pending = pending;
   saveRun();
   resumePending(pending);
@@ -135,6 +153,8 @@ function startCombat(encounter, kind) {
 function combatWon(kind) {
   const run = Game.run;
   if (kind === 'elite') run.stats.elites++;
+  // rewards do not depend on how the fight went
+  if (run.seed) Rng.state = hashSeed(`${run.seed}:a${run.act}:f${run.floor}:reward`);
   let gold = kind === 'boss' ? rand(95, 105) : kind === 'elite' ? rand(25, 35) : kind === 'mystery' ? rand(22, 32) : rand(10, 20);
   if (hasRelic('idol')) gold = Math.round(gold * 1.5);
   if (depthOn(7)) gold = Math.round(gold * 0.75);
@@ -300,4 +320,5 @@ window.addEventListener('DOMContentLoaded', () => {
   loadSettings();
   Profile.load();
   showTitle();
+  Cloud.init();
 });

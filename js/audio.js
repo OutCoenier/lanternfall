@@ -366,13 +366,13 @@ function audioSettingsEl() {
     input.onchange = () => { if (key === 'sfx') Sound.play('hit'); };
     return r;
   };
-  box.appendChild(row('🎵 Music', 'music'));
-  box.appendChild(row('🔊 Sounds', 'sfx'));
-  const mute = el('button', 'btn small' + (Sound.settings.muted ? ' danger' : ''), Sound.settings.muted ? '🔇 Sound is off (M)' : '🔈 Mute all (M)');
+  box.appendChild(row(':note: Music', 'music'));
+  box.appendChild(row(':speaker: Sounds', 'sfx'));
+  const mute = el('button', 'btn small' + (Sound.settings.muted ? ' danger' : ''), Sound.settings.muted ? ':speakerOff: Sound is off (M)' : ':speakerLow: Mute all (M)');
   mute.onclick = () => {
     const m = Sound.toggleMute();
     mute.className = 'btn small' + (m ? ' danger' : '');
-    mute.textContent = m ? '🔇 Sound is off (M)' : '🔈 Mute all (M)';
+    mute.textContent = m ? ':speakerOff: Sound is off (M)' : ':speakerLow: Mute all (M)';
     renderTopbar(true);
   };
   box.appendChild(mute);
@@ -387,7 +387,7 @@ document.addEventListener('click', (ev) => {
 document.addEventListener('keydown', (ev) => {
   if ((ev.key === 'm' || ev.key === 'M') && !ev.ctrlKey && !ev.metaKey && !/INPUT|TEXTAREA/.test(ev.target.tagName)) {
     const m = Sound.toggleMute();
-    toast(m ? '🔇 Sound off' : '🔊 Sound on', 1200);
+    toast(m ? ':speakerOff: Sound off' : ':speaker: Sound on', 1200);
     if (Game.run) renderTopbar(true);
   }
 });

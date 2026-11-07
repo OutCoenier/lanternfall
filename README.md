@@ -54,3 +54,33 @@ All music and sound effects are generated live in the browser, so there are no a
 
 ## Phones
 Play with the phone held sideways. Cards can be dragged with your finger.
+
+## Accounts (Supabase)
+
+Progress is always saved in the browser. With accounts set up, players can also sign in
+and keep their progress (Lantern Level, unlocks, Journal, achievements and the unfinished
+run) on their account. The first sign-in uploads what the browser already has; nothing
+local is deleted. The code is in `js/cloud.js`.
+
+1. Create a free project at https://supabase.com.
+2. In the project, open **SQL Editor**, paste this and press **Run**:
+
+   ```sql
+   create table public.saves (
+     user_id uuid primary key references auth.users (id) on delete cascade,
+     profile jsonb,
+     run jsonb,
+     run_at timestamptz,
+     updated_at timestamptz default now()
+   );
+   alter table public.saves enable row level security;
+   create policy "read own save" on public.saves for select using (auth.uid() = user_id);
+   create policy "add own save" on public.saves for insert with check (auth.uid() = user_id);
+   create policy "change own save" on public.saves for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+   ```
+
+3. **Authentication > URL Configuration**: set the Site URL to `https://outcoenier.github.io/lanternfall/`
+   (the confirmation email links there). Or turn off **Confirm email** under
+   **Authentication > Sign In / Providers > Email** to skip confirmation emails.
+4. **Project Settings > API**: copy the Project URL and the anon / publishable key into
+   `CLOUD_CONFIG` at the top of `js/cloud.js`.

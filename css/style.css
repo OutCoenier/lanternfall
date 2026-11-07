@@ -165,7 +165,7 @@ small { opacity: .75; }
 .map-node { position: absolute; transform: translate(-50%, -50%); width: 46px; height: 46px; border-radius: 50%; border: 2px solid #5a4d66; background: #1b1621; display: grid; place-items: center; font-size: 22px; padding: 0; cursor: default; transition: transform .15s; }
 .map-node:disabled { opacity: .55; }
 .map-node.visited { opacity: .9; border-color: var(--accent); background: #2a2020; }
-.map-node.visited::after { content: '✓'; position: absolute; right: -4px; bottom: -4px; font-size: 13px; background: var(--accent); color: #000; border-radius: 50%; width: 17px; height: 17px; display: grid; place-items: center; font-weight: 900; }
+.map-node.visited::after { content: ''; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size: 13px; background-repeat: no-repeat; background-position: center; position: absolute; right: -4px; bottom: -4px; font-size: 13px; background-color: var(--accent); color: #000; border-radius: 50%; width: 17px; height: 17px; display: grid; place-items: center; font-weight: 900; }
 .map-node.current { box-shadow: 0 0 0 4px #ffffff33; }
 .map-node.available { opacity: 1; cursor: pointer; border-color: #ffd76a; animation: nodePulse 1.4s ease-in-out infinite; }
 .map-node.available:hover { transform: translate(-50%, -50%) scale(1.25); }

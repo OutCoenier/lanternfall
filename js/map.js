@@ -4,13 +4,13 @@
 const MAP_ROWS = 13;
 const MAP_COLS = 7;
 const NODE_INFO = {
-  fight:    { icon: '⚔️', name: 'Enemy', tip: 'Fight a group of monsters.' },
-  elite:    { icon: '😈', name: 'Elite', tip: 'A dangerous foe. Defeat it to earn a Curio.' },
-  rest:     { icon: '🔥', name: 'Hearth', tip: 'Rest to heal, or Temper (upgrade) a card.' },
-  shop:     { icon: '🛒', name: 'Peddler', tip: 'Buy cards, Curios and Tonics, or remove a card.' },
-  treasure: { icon: '🧰', name: 'Treasure', tip: 'A chest holding a Curio.' },
-  event:    { icon: '❓', name: 'Unknown', tip: 'Something strange awaits.' },
-  boss:     { icon: '💀', name: 'Boss', tip: 'The master of this act.' },
+  fight:    { icon: ':swords:', name: 'Enemy', tip: 'Fight a group of monsters.' },
+  elite:    { icon: ':devil:', name: 'Elite', tip: 'A dangerous foe. Defeat it to earn a Curio.' },
+  rest:     { icon: ':flame:', name: 'Hearth', tip: 'Rest to heal, or Temper (upgrade) a card.' },
+  shop:     { icon: ':stall:', name: 'Peddler', tip: 'Buy cards, Curios and Tonics, or remove a card.' },
+  treasure: { icon: ':chest:', name: 'Treasure', tip: 'A chest holding a Curio.' },
+  event:    { icon: ':question:', name: 'Unknown', tip: 'Something strange awaits.' },
+  boss:     { icon: ':skull:', name: 'Boss', tip: 'The master of this act.' },
 };
 
 function genMap(act) {
@@ -137,6 +137,8 @@ function renderMapInto(container, interactive) {
     token.style.top = p.y + 'px';
     setTimeout(() => enterNode(n), 650 * Math.max(0.3, Game.speed));
   }
+  attachMapInk(inner, W, H);
+  container.appendChild(mapTools(inner));
   wrap.appendChild(inner);
   container.appendChild(wrap);
   // scroll to current position
@@ -177,3 +179,152 @@ function showMapOverlay() {
   box.appendChild(b);
   openOverlay(box, { wide: true });
 }
+
+// ---------- Drawing on the map ----------
+// Plan your route: hold the right mouse button and draw anywhere on the map,
+// or pick the pencil and draw with the left button. Drawings stay with the run
+// (one sheet per act) and are saved with it.
+const MAP_INK = ['#f4ead2', '#ff6b5a', '#ffd76a', '#6dd3ff', '#8dff8a', '#d89bff'];
+const MapInk = { tool: null, color: MAP_INK[0], undo: [], redraw: null };
+
+function mapStrokes() {
+  const run = Game.run;
+  run.mapDrawings = run.mapDrawings || {};
+  return (run.mapDrawings[run.act] = run.mapDrawings[run.act] || []);
+}
+function inkRemember() {
+  MapInk.undo.push({ act: Game.run.act, strokes: JSON.stringify(mapStrokes()) });
+  if (MapInk.undo.length > 40) MapInk.undo.shift();
+}
+function inkUndo() {
+  const run = Game.run;
+  for (let i = MapInk.undo.length - 1; i >= 0; i--) {
+    if (MapInk.undo[i].act !== run.act) continue;
+    run.mapDrawings[run.act] = JSON.parse(MapInk.undo.splice(i, 1)[0].strokes);
+    saveRun();
+    if (MapInk.redraw) MapInk.redraw();
+    return;
+  }
+}
+function inkClear() {
+  if (!mapStrokes().length) return;
+  inkRemember();
+  Game.run.mapDrawings[Game.run.act] = [];
+  saveRun();
+  if (MapInk.redraw) MapInk.redraw();
+}
+
+// A smooth path through the points (stored from 0 to 1 so it fits any map size).
+function inkPath(pts, W, H) {
+  const P = pts.map(([x, y]) => [Math.round(x * W * 10) / 10, Math.round(y * H * 10) / 10]);
+  if (!P.length) return '';
+  if (P.length === 1) return `M${P[0][0]},${P[0][1]} l0.1,0`;
+  let d = `M${P[0][0]},${P[0][1]}`;
+  for (let i = 1; i < P.length - 1; i++) {
+    const mx = Math.round((P[i][0] + P[i + 1][0]) * 5) / 10, my = Math.round((P[i][1] + P[i + 1][1]) * 5) / 10;
+    d += ` Q${P[i][0]},${P[i][1]} ${mx},${my}`;
+  }
+  const L = P[P.length - 1];
+  return d + ` L${L[0]},${L[1]}`;
+}
+
+function attachMapInk(inner, W, H) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const ink = document.createElementNS(NS, 'svg');
+  ink.setAttribute('class', 'map-ink');
+  ink.setAttribute('width', W); ink.setAttribute('height', H);
+  inner.appendChild(ink);
+  const redraw = () => {
+    ink.innerHTML = mapStrokes().map((st) => `<path d="${inkPath(st.p, W, H)}" stroke="${st.c}"/>`).join('');
+  };
+  redraw();
+  MapInk.redraw = () => { if (ink.isConnected) redraw(); };
+  if (MapInk.tool) inner.classList.add('drawing', 'tool-' + MapInk.tool);
+
+  let live = null, mode = null, pts = null, erased = false;
+  const at = (ev) => { const r = inner.getBoundingClientRect(); return [(ev.clientX - r.left) / W, (ev.clientY - r.top) / H]; };
+  const eraseAt = ([x, y]) => {
+    const strokes = mapStrokes(), R = 12;
+    const keep = strokes.filter((st) => !st.p.some(([px, py]) => Math.hypot((px - x) * W, (py - y) * H) < R + 3));
+    if (keep.length === strokes.length) return;
+    if (!erased) { inkRemember(); erased = true; }
+    Game.run.mapDrawings[Game.run.act] = keep;
+    redraw();
+  };
+  inner.addEventListener('contextmenu', (ev) => ev.preventDefault());
+  inner.addEventListener('pointerdown', (ev) => {
+    if (ev.button === 2) mode = MapInk.tool === 'erase' ? 'erase' : 'pen';
+    else if (ev.button === 0 && MapInk.tool) mode = MapInk.tool;
+    else return;
+    ev.preventDefault(); ev.stopPropagation();
+    hideTip();
+    inner.setPointerCapture(ev.pointerId);
+    inner.classList.add('inking');
+    if (mode === 'erase') { erased = false; eraseAt(at(ev)); return; }
+    pts = [at(ev)];
+    live = document.createElementNS(NS, 'path');
+    live.setAttribute('stroke', MapInk.color);
+    live.setAttribute('d', inkPath(pts, W, H));
+    ink.appendChild(live);
+  }, true);
+  inner.addEventListener('pointermove', (ev) => {
+    if (!mode) return;
+    const p = at(ev);
+    if (mode === 'erase') return eraseAt(p);
+    const q = pts[pts.length - 1];
+    if (Math.hypot((p[0] - q[0]) * W, (p[1] - q[1]) * H) < 3) return;
+    pts.push(p);
+    live.setAttribute('d', inkPath(pts, W, H));
+  });
+  const end = () => {
+    if (!mode) return;
+    inner.classList.remove('inking');
+    if (mode === 'pen' && pts) {
+      inkRemember();
+      mapStrokes().push({ c: MapInk.color, p: pts.map(([x, y]) => [Math.round(x * 1e4) / 1e4, Math.round(y * 1e4) / 1e4]) });
+      redraw();
+    }
+    saveRun();
+    mode = null; pts = null; live = null;
+  };
+  inner.addEventListener('pointerup', end);
+  inner.addEventListener('pointercancel', end);
+}
+
+function mapTools(inner) {
+  const bar = el('div', 'map-tools');
+  const setTool = (t) => {
+    MapInk.tool = MapInk.tool === t ? null : t;
+    inner.classList.remove('drawing', 'tool-pen', 'tool-erase');
+    if (MapInk.tool) inner.classList.add('drawing', 'tool-' + MapInk.tool);
+    paint();
+  };
+  const btn = (ic, tip, fn, cls = '') => { const b = el('button', 'mt-btn ' + cls, icon(ic)); b.dataset.tip = tip; b.onclick = fn; bar.appendChild(b); return b; };
+  const pen = btn('pencil', '<b>Draw</b> on the map (D).<br>You can also hold the <b>right mouse button</b> to draw at any time.', () => setTool('pen'));
+  const rub = btn('eraser', '<b>Eraser</b>: rub out lines you drew.', () => setTool('erase'));
+  const swatches = el('div', 'mt-colors');
+  for (const c of MAP_INK) {
+    const s = el('button', 'mt-color');
+    s.style.setProperty('--c', c);
+    s.onclick = () => { MapInk.color = c; if (MapInk.tool !== 'pen') setTool('pen'); else paint(); };
+    swatches.appendChild(s);
+  }
+  bar.appendChild(swatches);
+  btn('undo', '<b>Undo</b> (Ctrl+Z)', inkUndo);
+  btn('trash', '<b>Clear</b> all drawings on this act', inkClear);
+  function paint() {
+    pen.classList.toggle('on', MapInk.tool === 'pen');
+    rub.classList.toggle('on', MapInk.tool === 'erase');
+    [...swatches.children].forEach((s, i) => s.classList.toggle('on', MAP_INK[i] === MapInk.color));
+  }
+  paint();
+  MapInk.setTool = setTool;
+  return bar;
+}
+
+document.addEventListener('keydown', (ev) => {
+  if (/INPUT|TEXTAREA/.test(ev.target.tagName) || !Game.run || Game.combat || !document.querySelector('.map-ink')) return;
+  if (document.querySelector('#overlay.show') && !document.querySelector('#overlay.show .map-ink')) return;
+  if ((ev.ctrlKey || ev.metaKey) && (ev.key === 'z' || ev.key === 'Z')) { ev.preventDefault(); inkUndo(); }
+  else if (!ev.ctrlKey && !ev.metaKey && !ev.altKey && (ev.key === 'd' || ev.key === 'D') && MapInk.setTool) MapInk.setTool('pen');
+});

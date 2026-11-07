@@ -157,7 +157,7 @@ const ENEMY_ART = {
     <path d="M70 60 Q80 54 90 60" stroke="#1a0a2a" stroke-width="2.5" fill="none"/>
     <path d="M66 50 Q66 58 64 62" stroke="#8a6ac0" stroke-width="1.5" fill="none"/>
     <path d="M40 80 Q20 70 16 50 M120 80 Q140 72 146 54" stroke="#2a1040" stroke-width="7" fill="none" stroke-linecap="round"/>
-    <g fill="#d0a0ff" font-size="16" class="pt-glow"><text x="12" y="40">♪</text><text x="138" y="40">♫</text><text x="26" y="20">♩</text></g>
+    <g fill="#d0a0ff" font-size="16" class="pt-glow"><text x="12" y="40">:note:</text><text x="138" y="40">:note:</text><text x="26" y="20">:note:</text></g>
   </svg>`,
 
   ashWarden: () => `<svg class="portrait-svg" viewBox="0 0 160 160">
