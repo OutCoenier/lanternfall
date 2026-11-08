@@ -6,7 +6,7 @@
 
 const CHARACTERS = {
   lampwright: {
-    name: 'The Lampwright', short: 'Lampwright', icon: ':lantern:', color: '#ffb347', hp: 75, gold: 99, relic: 'wick',
+    name: 'The Lampwright', short: 'Lampwright', icon: ':lantern:', color: '#ffb347', hp: 78, gold: 99, relic: 'wick',
     deck: ['strike', 'strike', 'strike', 'strike', 'strike', 'defend', 'defend', 'defend', 'defend', 'flare'],
     tagline: 'The old keeper of the last lighthouse.',
     bio: 'For forty years the Lampwright kept the lighthouse burning. When the sun went out and the sea turned black, they took the great lamp down from the tower and walked into the dark to bring the dawn back themselves.',
@@ -18,7 +18,7 @@ const CHARACTERS = {
     portrait: lampwrightSVG,
   },
   moonblade: {
-    name: 'The Moonblade', short: 'Moonblade', icon: ':moon:', color: '#9fc3ff', hp: 70, gold: 99, relic: 'moonCharm',
+    name: 'The Moonblade', short: 'Moonblade', icon: ':moon:', color: '#9fc3ff', hp: 64, gold: 99, relic: 'moonCharm',
     deck: ['moonCut', 'moonCut', 'moonCut', 'moonCut', 'moonCut', 'sidestep', 'sidestep', 'sidestep', 'sidestep', 'crescentCut'],
     tagline: 'The last duelist of the Lunar Order.',
     bio: 'The Lunar Order guarded the night when it was still kind. Now only one of them is left, carrying a blade forged from a fallen piece of the moon. Quick, quiet, and very hard to hit.',
@@ -30,7 +30,7 @@ const CHARACTERS = {
     portrait: moonbladeSVG,
   },
   alchemist: {
-    name: 'The Alchemist', short: 'Alchemist', icon: ':flask:', color: '#8fe36a', hp: 76, gold: 99, relic: 'satchel', unlock: 1,
+    name: 'The Alchemist', short: 'Alchemist', icon: ':flask:', color: '#8fe36a', hp: 68, gold: 99, relic: 'satchel', unlock: 1,
     deck: ['vialToss', 'vialToss', 'vialToss', 'vialToss', 'vialToss', 'glassWall', 'glassWall', 'glassWall', 'glassWall', 'acidSplash'],
     tagline: 'A brilliant and slightly reckless brewer.',
     bio: 'Banished from the Academy for "excessive explosions", the Alchemist believes the darkness is just a chemical problem. Every flask on that belt is an experiment, and most of them are on fire.',
@@ -42,7 +42,7 @@ const CHARACTERS = {
     portrait: alchemistSVG,
   },
   cassandra: {
-    name: 'Cassandra', short: 'Cassandra', icon: ':heartDark:', color: '#c99cff', hp: 70, gold: 99, relic: 'locket', duo: true,
+    name: 'Cassandra', short: 'Cassandra', icon: ':heartDark:', color: '#c99cff', hp: 72, gold: 99, relic: 'locket', duo: true,
     titles: ['The Princess of Darkness', 'Knight in Shining Armor'],
     deck: ['shadowLash', 'shadowLash', 'shadowLash', 'shadowLash', 'veilOfNight', 'veilOfNight', 'veilOfNight', 'rally', 'lanceOfDawn', 'lanceOfDawn'],
     tagline: 'The Princess of Darkness, and her Knight in Shining Armor.',

@@ -110,10 +110,10 @@ const STATUSES = {
               onTurnEnd(ctx, e, n) { ctx.applyAll('unstable', n); } },
   catalysis: { name: 'Catalysis', icon: ':microscope:', type: 'power', desc: (n) => `Explosions deal ${n} additional damage.` },
   doubleDose: { name: 'Double Dose', icon: ':pill:', type: 'buff', desc: () => `The next Tonic you use takes effect twice.` },
-  reactiveArmor: { name: 'Reactive Armor', icon: ':shield:', type: 'power', desc: (n) => `Whenever an enemy explodes, gain ${n} Ward.` },
+  reactiveArmor: { name: 'Reactive Armor', icon: ':shield:', type: 'power', desc: (n) => `Whenever you apply Unstable to an enemy, gain ${n} Ward.` },
   philosophersStone: { name: "Philosopher's Stone", icon: ':gem:', type: 'power', desc: (n) => `At the start of your turn, brew ${n} random Tonic(s).`,
                        onTurnStart(ctx, e, n) { ctx.brew(n); } },
-  chainReaction: { name: 'Chain Reaction', icon: ':chain:', type: 'power', desc: (n) => `Whenever an enemy explodes, apply ${n} Unstable to ALL other enemies.` },
+  chainReaction: { name: 'Chain Reaction', icon: ':chain:', type: 'power', desc: (n) => `Whenever an enemy explodes, apply ${n} Unstable to ALL enemies.` },
   alembic: { name: 'Alembic', icon: ':urn:', type: 'power', desc: (n) => `Whenever you use a Tonic, draw ${n} card(s).` },
 };
 

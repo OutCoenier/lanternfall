@@ -3,7 +3,7 @@
 
 // Overall enemy strength. Every Depth builds on top of these.
 // Index = act number (1-3).
-const ENEMY_HP_TUNE = [1, 0.88, 0.8, 0.8], ENEMY_DMG_TUNE = [1, 0.9, 0.85, 0.85], BOSS_HP_TUNE = 0.82;
+const ENEMY_HP_TUNE = [1, 1, 1, 1], ENEMY_DMG_TUNE = [1, 1, 1, 1], BOSS_HP_TUNE = 1;
 const actTune = (t) => t[clamp((Game.run && Game.run.act) || 1, 1, 3)];
 
 class Combat {
@@ -224,7 +224,7 @@ class Combat {
       if (m.summon) {
         const cur = this.alive().filter((a) => a.id === m.summon.id).length;
         const n = Math.min(m.summon.n, m.summon.max - cur);
-        for (let i = 0; i < n; i++) this.spawn(m.summon.id, { minion: true, roll: true });
+        for (let i = 0; i < n; i++) this.spawn(m.summon.id, { minion: true, roll: true, hp: m.summon.hp ? rand(m.summon.hp[0], m.summon.hp[1]) : null });
       }
       if (m.fn) await m.fn(this, e);
     }
@@ -439,10 +439,11 @@ class Combat {
     if (id === 'bleed' && src && src.isPlayer && !tgt.isPlayer) n += this.player.statuses.crimsonMoon || 0;
     if (id === 'burn' && src && src.isPlayer && !tgt.isPlayer) n += (this.player.statuses.pyromancy || 0) + (hasRelic('emberCore') ? 1 : 0);
     tgt.statuses[id] = (tgt.statuses[id] || 0) + n;
+    if (id === 'unstable' && n > 0 && !tgt.isPlayer && this.player.statuses.reactiveArmor) this.gainBlock(this.player, this.player.statuses.reactiveArmor, false);
     if (tgt.statuses[id] === 0 || (tgt.statuses[id] < 0 && !S.canNeg)) delete tgt.statuses[id];
     if (src && !src.isPlayer && tgt.isPlayer && this.phase === 'enemy' && S.duration) this.justApplied.add('p:' + id);
     if (id === 'bleed' && tgt.statuses.bleed >= 20) unlockAch('hemorrhage');
-    if (id === 'unstable' && tgt.statuses.unstable >= 10 && !tgt.isPlayer) { this.renderEntity(tgt); this.explode(tgt); return; }
+    if (id === 'unstable' && tgt.statuses.unstable >= 10 && !tgt.isPlayer) { this.renderEntity(tgt); this.track(this.explode(tgt)); return; }
     if (!silent && S.type !== 'info') Sound.play(isDebuff ? (id === 'burn' ? 'ignite' : 'debuff') : S.type === 'power' ? 'power' : 'buff');
     if (!silent && S.type !== 'info') Fx.at(tgt, id === 'burn' ? 'fire' : id === 'bleed' ? 'bleed' : isDebuff ? 'debuff' : S.type === 'power' ? 'power' : 'buff',
       { col: tgt.isPlayer ? currentChar().color : '#ffd76a', glyph: S.icon });
@@ -569,7 +570,8 @@ class Combat {
       // If that enemy is already dead, the extra copy is simply lost.
       if (d.target === 'enemy' && (!t || t.dead)) break;
       if (k > 0) { this.float(this.player, 'Again!', 'buff'); await sleep(300); }
-      await d.play(this, v, t, card);
+      // a card that fails must not freeze the fight (busy would stay on and the win would never be noticed)
+      try { await d.play(this, v, t, card); } catch (err) { console.error('Card failed:', d.name, err); }
     }
     this.cardBonus = 0;
     if (d.type !== 'power') (cardFlag(card, 'exhaust') ? this.exhaustPile : this.discardPile).push(card);
@@ -604,7 +606,7 @@ class Combat {
     Sound.play('potion');
     this.tonicsUsed = (this.tonicsUsed || 0) + 1;
     if (this.tonicsUsed >= 4) unlockAch('tonics');
-    await POTIONS[id].use(this, target);
+    try { await POTIONS[id].use(this, target); } catch (err) { console.error('Tonic failed:', id, err); }
     if (this.player.statuses.doubleDose && !this.over) {
       delete this.player.statuses.doubleDose;
       this.float(this.player, 'Double Dose!', 'buff');
@@ -617,7 +619,20 @@ class Combat {
     await this.checkOver();
   }
 
+  // Effects started from instant code (an explosion from applying Unstable, Black Wedding
+  // from a Summon) keep running after the action that caused them. Remember them so the
+  // end of the fight waits for them; otherwise a kill they cause could go unnoticed.
+  track(promise) {
+    this.pendingFx = this.pendingFx || new Set();
+    this.pendingFx.add(promise);
+    promise.finally(() => this.pendingFx.delete(promise));
+    return promise;
+  }
+
   async checkOver() {
+    while (this.pendingFx && this.pendingFx.size) await Promise.all([...this.pendingFx]);
+    // safety net: every enemy is gone but nothing called it a win
+    if (!this.over && this.phase !== 'start' && !this.player.dead && this.enemies.length && !this.alive().length) { this.over = true; this.result = 'victory'; }
     if (!this.over) return false;
     if (this.finished) return true;
     this.finished = true;
@@ -1099,7 +1114,7 @@ class Combat {
     Sound.play('power');
     Fx.at(k, 'shield');
     this.renderEntity(k);
-    if (this.player.statuses.blackWedding) { const t = pick(this.alive()); if (t) this.damage(t, n, this.player, 'power'); }
+    if (this.player.statuses.blackWedding) { const t = pick(this.alive()); if (t) this.track(this.damage(t, n, this.player, 'power')); }
   }
   // Sacrifice n: the Knight loses n HP. Whatever he cannot pay, Cassandra pays herself.
   async sacrifice(n) {
@@ -1178,8 +1193,7 @@ class Combat {
     Sound.play('explode');
     this.float(e, ':burst: BOOM!', 'dmg');
     await this.damage(e, 25 + (p.catalysis || 0), null, 'hploss');
-    if (p.reactiveArmor) this.gainBlock(this.player, p.reactiveArmor, false);
-    if (p.chainReaction) for (const o of this.alive()) if (o !== e) this.apply(o, 'unstable', p.chainReaction);
+    if (p.chainReaction) for (const o of this.alive()) this.apply(o, 'unstable', p.chainReaction);
   }
 
   // ---------- Bosses ----------

@@ -30,7 +30,8 @@ const pts = (n, cx, cy, r1, r2, rot = -90) => Array.from({ length: n * 2 }, (_, 
   const a = ((rot + (i * 180) / n) * Math.PI) / 180, r = i % 2 ? r2 : r1;
   return `${f1(cx + Math.cos(a) * r)},${f1(cy + Math.sin(a) * r)}`;
 }).join(' ');
-const star = (cx, cy, r1, r2, n, fill, extra = '') => `<polygon points="${pts(n, cx, cy, r1, r2)}" fill="${fill}" ${O} ${extra}/>`;
+// (if extra sets its own stroke-width, drop the default one: a repeated attribute breaks the card pictures)
+const star = (cx, cy, r1, r2, n, fill, extra = '') => `<polygon points="${pts(n, cx, cy, r1, r2)}" fill="${fill}" ${/stroke-width/.test(extra) ? O.replace(/ stroke-width="[^"]*"/, '') : O} ${extra}/>`;
 const gear = (cx, cy, r1, r2, n) => {
   let d = '';
   for (let i = 0; i < n; i++) {

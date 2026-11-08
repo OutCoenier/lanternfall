@@ -27,7 +27,7 @@ const KEYWORDS = {
   Ethereal: 'If this is in your hand at the end of your turn, it is Exhausted.',
   Innate: 'Starts each combat in your hand.',
   Unplayable: 'This card cannot be played.',
-  'Moon Shard': 'A 0-cost Attack card: deal 4 damage. Exhaust.',
+  'Moon Shard': 'A 0-cost Attack card: deal 3 damage. Exhaust.',
   Summon: 'Calls your Knight with that much HP, or gives him that much HP if he is already here.',
   Knight: 'Your Knight in Shining Armor. He takes the damage your Ward does not block. If he falls, you take it.',
   Valor: 'Each point makes the Knight\'s attacks deal 1 more damage.',

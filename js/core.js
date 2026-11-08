@@ -1,6 +1,9 @@
 // ===== Core helpers & global game state =====
 'use strict';
 
+// Shown in the bottom-right corner of the title screen. Raise it with every release.
+const GAME_VERSION = '1.1.0';
+
 const Game = {
   run: null,      // the current run (saved between sessions)
   combat: null,   // the active Combat instance (or null)

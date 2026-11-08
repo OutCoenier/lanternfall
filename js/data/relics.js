@@ -7,16 +7,17 @@
 const RELICS = {
   // ---- Starter ----
   wick: { name: 'Ever-Burning Wick', icon: ':candle:', rarity: 'starter', char: 'lampwright',
-    desc: 'At the end of each combat, heal 6 HP.',
+    desc: 'At the start of each combat, apply 3 Burn to ALL enemies. At the end of each combat, heal 6 HP.',
+    onCombatStart(c) { c.applyAll('burn', 3); },
     onCombatEnd(run) { healRun(6); } },
 
   moonCharm: { name: 'Moonstone Charm', icon: ':moon:', rarity: 'starter', char: 'moonblade',
-    desc: 'At the start of each combat, add 2 Moon Shards to your hand.',
-    onCombatStart(c) { c.addCard('moonShard', 'hand', 2); } },
+    desc: 'At the start of each combat, add a Moon Shard to your hand.',
+    onCombatStart(c) { c.addCard('moonShard', 'hand', 1); } },
 
   satchel: { name: "Brewer's Satchel", icon: ':bag:', rarity: 'starter', char: 'alchemist',
-    desc: 'At the start of each elite and boss combat, or any combat where you have no Tonics, brew a random Tonic.',
-    onCombatStart(c) { if (c.kind === 'elite' || c.kind === 'boss' || !c.run.potions.some(Boolean)) c.brew(1); } },
+    desc: 'At the start of each elite and boss combat, brew a random Tonic.',
+    onCombatStart(c) { if (c.kind === 'elite' || c.kind === 'boss') c.brew(1); } },
 
   locket: { name: 'Moonlit Locket', icon: ':ring:', rarity: 'starter', char: 'cassandra',
     desc: 'At the start of each combat, Summon 10.',

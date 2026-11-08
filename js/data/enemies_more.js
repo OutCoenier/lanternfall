@@ -5,16 +5,16 @@
 Object.assign(ENEMIES, {
   // ================= ACT 1: THE DROWNED CATACOMBS =================
   drownedSailor: { name: 'Drowned Sailor', hp: [34, 38], sprite: ':zombie:', scale: 1.05,
-    moves: { anchor: { name: 'Anchor Swing', dmg: 9 }, bilge: { name: 'Bilge Spit', dmg: 4, debuff: { sapped: 1 } } },
+    moves: { anchor: { name: 'Anchor Swing', dmg: 8 }, bilge: { name: 'Bilge Spit', dmg: 4, debuff: { sapped: 1 } } },
     ai: (h) => (h.last() === 'bilge' ? 'anchor' : h.chance(0.6) ? 'anchor' : 'bilge') },
   cryptRat: { name: 'Crypt Rat', hp: [14, 18], sprite: ':worm:', scale: 0.75,
     moves: { bite: { name: 'Bite', dmg: 5 }, gnaw: { name: 'Gnaw', dmg: 2, hits: 2 }, skitter: { name: 'Skitter', block: 5 } },
     ai: (h) => (h.lastTwo('bite') ? 'gnaw' : weighted([['bite', 50], ['gnaw', 30], ['skitter', 20]])) },
   gloomfin: { name: 'Gloomfin', hp: [30, 34], sprite: ':wave:', scale: 1.0,
-    moves: { lure: { name: 'Hypnotic Lure', debuff: { exposed: 2 } }, chomp: { name: 'Chomp', dmg: 11 }, thrash: { name: 'Thrash', dmg: 4, hits: 2 } },
+    moves: { lure: { name: 'Hypnotic Lure', debuff: { exposed: 1 } }, chomp: { name: 'Chomp', dmg: 9 }, thrash: { name: 'Thrash', dmg: 3, hits: 2 } },
     ai: (h) => (h.turn % 4 === 0 ? 'lure' : h.last() === 'chomp' ? 'thrash' : 'chomp') },
   boneArcher: { name: 'Bone Archer', hp: [22, 26], sprite: ':skull:', scale: 0.95,
-    moves: { aim: { name: 'Take Aim', buff: { might: 2 } }, volley: { name: 'Volley', dmg: 3, hits: 3 }, pierce: { name: 'Piercing Shot', dmg: 9 } },
+    moves: { aim: { name: 'Take Aim', buff: { might: 1 } }, volley: { name: 'Volley', dmg: 3, hits: 3 }, pierce: { name: 'Piercing Shot', dmg: 9 } },
     ai: (h) => (h.turn === 0 ? 'aim' : h.last() === 'volley' ? 'pierce' : h.last() === 'pierce' && h.chance(0.3) ? 'aim' : 'volley') },
   tideCrab: { name: 'Tidepool Crab', hp: [26, 30], sprite: ':crab:', scale: 0.9,
     moves: { pinch: { name: 'Pinch', dmg: 7 }, burrow: { name: 'Burrow', block: 9 }, snap: { name: 'Double Snap', dmg: 4, hits: 2 } },
@@ -23,11 +23,11 @@ Object.assign(ENEMIES, {
     moves: { toll: { name: 'Death Knell', debuff: { exposed: 1 }, buffAll: { might: 1 } }, clang: { name: 'Clang', dmg: 8 }, resonate: { name: 'Resonate', block: 8 } },
     ai: (h) => (h.turn === 0 || h.turn % 3 === 0 ? 'toll' : h.last() === 'clang' && h.chance(0.4) ? 'resonate' : 'clang') },
   // --- Act 1 elites ---
-  drownedCaptain: { name: 'The Drowned Captain', hp: [104, 110], sprite: ':skull:', scale: 1.4, elite: true,
+  drownedCaptain: { name: 'The Drowned Captain', hp: [88, 92], sprite: ':skull:', scale: 1.4, elite: true,
     moves: {
-      crew: { name: 'All Hands!', block: 8, summon: { id: 'drownedSailor', n: 1, max: 2 } },
-      cutlass: { name: 'Cutlass', dmg: 13 },
-      broadside: { name: 'Broadside', dmg: 5, hits: 3 },
+      crew: { name: 'All Hands!', block: 8, summon: { id: 'drownedSailor', n: 1, max: 1, hp: [20, 24] } },
+      cutlass: { name: 'Cutlass', dmg: 12 },
+      broadside: { name: 'Broadside', dmg: 4, hits: 3 },
     },
     ai: (h) => (h.turn === 0 || (h.turn % 4 === 0 && h.allies().length < 2) ? 'crew' : h.last() === 'cutlass' ? 'broadside' : 'cutlass') },
   bogHag: { name: 'Bog Hag', hp: [86, 92], sprite: ':mage:', scale: 1.3, elite: true,
@@ -38,12 +38,12 @@ Object.assign(ENEMIES, {
     },
     ai: (h) => (h.turn % 4 === 0 ? 'hex' : h.last() === 'ladle' ? 'cauldron' : 'ladle') },
   // --- Act 1 boss ---
-  boneColossus: { name: 'The Bone Colossus', title: 'Lord of the Ossuary', hp: [156, 156], sprite: ':skull:', scale: 1.9, boss: true,
+  boneColossus: { name: 'The Bone Colossus', title: 'Lord of the Ossuary', hp: [148, 148], sprite: ':skull:', scale: 1.9, boss: true,
     moves: {
-      rattle: { name: 'Raise the Dead', block: 14, summon: { id: 'boneArcher', n: 1, max: 2 } },
-      smash: { name: 'Ossuary Slam', dmg: 18 },
+      rattle: { name: 'Raise the Dead', block: 12, summon: { id: 'boneArcher', n: 1, max: 2, hp: [14, 16] } },
+      smash: { name: 'Ossuary Slam', dmg: 16 },
       rain: { name: 'Bone Rain', dmg: 3, hits: 4 },
-      fury: { name: 'Marrow Fury', buff: { might: 3 }, intent: 'buff', fn: (c, e) => { e.raged = true; } },
+      fury: { name: 'Marrow Fury', buff: { might: 2 }, intent: 'buff', fn: (c, e) => { e.raged = true; } },
     },
     ai: (h) => {
       if (!h.e.raged && h.e.hp <= h.e.maxHp / 2) return 'fury';
@@ -81,18 +81,18 @@ Object.assign(ENEMIES, {
   // --- Act 2 elites ---
   sporeQueen: { name: 'The Spore Queen', hp: [140, 148], sprite: ':butterfly:', scale: 1.5, elite: true,
     moves: {
-      brood: { name: 'Call the Brood', summon: { id: 'sporeBat', n: 2, max: 2 } },
-      devour: { name: 'Devour', dmg: 19 },
-      storm: { name: 'Dust Storm', dmg: 6, hits: 3 },
-      cocoon: { name: 'Cocoon', block: 18, buff: { mending: 6 } },
+      brood: { name: 'Call the Brood', summon: { id: 'sporeBat', n: 2, max: 2, hp: [12, 14] } },
+      devour: { name: 'Devour', dmg: 16 },
+      storm: { name: 'Dust Storm', dmg: 5, hits: 3 },
+      cocoon: { name: 'Cocoon', block: 15, buff: { mending: 4 } },
     },
     ai: (h) => {
       if (h.turn === 0) return 'brood';
       const cycle = ['devour', 'storm', 'cocoon'];
       return cycle[(h.e.cycle = (h.e.cycle ?? -1) + 1) % cycle.length];
     } },
-  hydra: { name: 'Mycelial Hydra', hp: [150, 158], sprite: ':dragon:', scale: 1.55, elite: true,
-    moves: { bites: { name: 'Three Heads Bite', dmg: 6, hits: 3 }, regrow: { name: 'Regrow', block: 10, buff: { mending: 8 } }, roar: { name: 'Roar', buff: { might: 3 } } },
+  hydra: { name: 'Mycelial Hydra', hp: [128, 134], sprite: ':dragon:', scale: 1.55, elite: true,
+    moves: { bites: { name: 'Three Heads Bite', dmg: 5, hits: 3 }, regrow: { name: 'Regrow', block: 8, buff: { mending: 5 } }, roar: { name: 'Roar', buff: { might: 3 } } },
     ai: (h) => (h.turn === 0 ? 'roar' : h.last() === 'bites' ? (h.turn % 5 === 0 ? 'roar' : 'regrow') : 'bites') },
   // --- Act 2 boss ---
   elderOak: { name: 'The Elder Oak', title: 'Heart of the Mycelium', hp: [330, 330], sprite: ':herb:', scale: 2.0, boss: true,
@@ -136,8 +136,8 @@ Object.assign(ENEMIES, {
     },
     ai: (h) => (h.turn === 0 ? 'snuff' : h.last() === 'drain' ? (h.chance(0.5) ? 'flit' : 'snuff') : 'drain') },
   // --- Act 3 elites ---
-  voidBehemoth: { name: 'Void Behemoth', hp: [228, 238], sprite: ':ogre:', scale: 1.7, elite: true,
-    moves: { roar: { name: 'Roar of the Deep', buff: { might: 3 } }, crush: { name: 'Crush', dmg: 26 }, tremor: { name: 'Tremor', dmg: 8, hits: 2, debuff: { exposed: 1 } } },
+  voidBehemoth: { name: 'Void Behemoth', hp: [208, 216], sprite: ':ogre:', scale: 1.7, elite: true,
+    moves: { roar: { name: 'Roar of the Deep', buff: { might: 2 } }, crush: { name: 'Crush', dmg: 22 }, tremor: { name: 'Tremor', dmg: 8, hits: 2, debuff: { exposed: 1 } } },
     ai: (h) => (h.turn === 0 || h.turn % 4 === 0 ? 'roar' : h.last() === 'crush' ? 'tremor' : 'crush') },
   twinWraith: { name: 'Twin Wraith', hp: [100, 106], sprite: ':ghost:', scale: 1.25, elite: true,
     moves: { rend: { name: 'Rend', dmg: 11 }, wail: { name: 'Wail', debuff: { sapped: 1 }, buff: { might: 1 } }, shriek: { name: 'Twin Shriek', dmg: 4, hits: 3 } },
@@ -146,11 +146,11 @@ Object.assign(ENEMIES, {
   // --- Act 3 boss ---
   namelessKing: { name: 'The Nameless King', title: 'Sovereign of the Void Throne', hp: [460, 460], sprite: ':crown:', scale: 2.0, boss: true,
     moves: {
-      guard: { name: 'Royal Guard', block: 20, summon: { id: 'hollowPilgrim', n: 2, max: 2 } },
+      guard: { name: 'Royal Guard', block: 18, summon: { id: 'hollowPilgrim', n: 2, max: 2, hp: [30, 34] } },
       decree: { name: 'Dark Decree', debuff: { sapped: 2, exposed: 2 } },
       scepter: { name: 'Scepter Strikes', dmg: 7, hits: 3 },
-      execute: { name: 'Execution', dmg: 34 },
-      crown: { name: 'Crown of Night', buff: { might: 4 }, intent: 'buff', fn: (c, e) => { e.raged = true; } },
+      execute: { name: 'Execution', dmg: 28 },
+      crown: { name: 'Crown of Night', buff: { might: 3 }, intent: 'buff', fn: (c, e) => { e.raged = true; } },
     },
     ai: (h) => {
       if (!h.e.raged && h.e.hp <= h.e.maxHp / 2) return 'crown';

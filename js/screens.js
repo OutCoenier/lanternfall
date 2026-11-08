@@ -58,7 +58,8 @@ function showTitle() {
     ${levelBarHTML()}
     ${typeof cloudLineHTML === 'function' ? cloudLineHTML() : ''}
     <div class="menu"></div>
-    <p class="credits">A deck-building descent · 3 Acts · ${heroes} Heroes · ${MAX_DEPTH} Depths</p>`;
+    <p class="credits">A deck-building descent · 3 Acts · ${heroes} Heroes · ${MAX_DEPTH} Depths</p>
+    <div class="game-version">v${GAME_VERSION}</div>`;
   const menu = $('.menu', page);
   const confirmAbandon = () => !save || confirm('Starting a new run will abandon your current run. Continue?');
   if (save) menu.appendChild(button(`Continue <small>${CHARACTERS[save.char || 'lampwright'].short} · Act ${save.act} · Floor ${save.floor}${save.depth ? ' · Depth ' + save.depth : ''}</small>`, continueRun, 'btn big primary'));
