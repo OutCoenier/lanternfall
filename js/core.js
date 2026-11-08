@@ -2,7 +2,7 @@
 'use strict';
 
 // Shown in the bottom-right corner of the title screen. Raise it with every release.
-const GAME_VERSION = '1.1.0';
+const GAME_VERSION = '1.1.1';
 
 const Game = {
   run: null,      // the current run (saved between sessions)
